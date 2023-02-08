@@ -273,4 +273,5 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/external/glm-0.9.7.1/glm/gtc/matrix_transform.inl \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./common/shader.hpp \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./common/objloader.hpp \
+ /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./common/texture.hpp \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./common/vboindexer.hpp

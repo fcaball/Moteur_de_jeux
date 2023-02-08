@@ -20,8 +20,13 @@ using namespace glm;
 
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
+#include <common/texture.hpp>
 #include <common/vboindexer.hpp>
 
+void processInput(GLFWwindow *window);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 // settings
@@ -40,6 +45,14 @@ float lastFrame = 0.0f;
 // rotation
 float angle = 0.;
 float zoom = 1.;
+
+bool firstMouse = true;
+float yaw   = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float pitch =  0.0f;
+float lastX =  800.0f / 2.0;
+float lastY =  600.0 / 2.0;
+float fov   =  45.0f;
+
 /*******************************************************************************/
 
 glm::mat4 ModelMatrix;
@@ -47,8 +60,20 @@ glm::mat4 viewMatrix;
 glm::mat4 projMatrix;
 std::vector<unsigned short> indices; // Triangles concaténés dans une liste
 std::vector<glm::vec3> indexed_vertices;
+std::vector<GLfloat> texCoords;
 GLuint vertexbuffer;
 GLuint elementbuffer;
+
+int addOnce(std::vector<glm::vec3> &A, vec3 v)
+{
+    for (size_t i = 0; i < A.size(); i++)
+    {
+        if (A[i][0] == v[0] && A[i][2] == v[2] /* && A[i][2] == v[2] */)
+            return i;
+    }
+    A.push_back(v);
+    return A.size() - 1;
+}
 
 void makePlan(float resolution)
 {
@@ -58,30 +83,31 @@ void makePlan(float resolution)
     {
         for (size_t j = 0; j < resolution; j++)
         {
-            
-            
+            int index = 0;
+            float r00 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
+            float r10 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
+            float r01 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
+            float r11 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
+            index = addOnce(indexed_vertices, vec3(i * pas, /* (float) rand()/(float)RAND_MAX) */r00, j * pas));
+            indices.push_back(index);
+
+            index = addOnce(indexed_vertices, vec3((i + 1) * pas, /* (float) rand()/(float)RAND_MAX) */ r10, j * pas));
+            indices.push_back(index);
+
+            index = addOnce(indexed_vertices, vec3(i * pas, /* (float) rand()/(float)RAND_MAX) */r01, (j + 1) * pas));
+            indices.push_back(index);
+
+            index = addOnce(indexed_vertices, vec3((i + 1) * pas, /* (float) rand()/(float)RAND_MAX) */ r11, (j + 1) * pas));
+            indices.push_back(index);
+
+            index = addOnce(indexed_vertices, vec3((i + 1) * pas, /* (float) rand()/(float)RAND_MAX) */ r10, j * pas));
+            indices.push_back(index);
+
+            index = addOnce(indexed_vertices, vec3(i * pas, /* (float) rand()/(float)RAND_MAX) */ r01, (j + 1) * pas));
+            indices.push_back(index);
         }
-        
     }
     
-    indexed_vertices.push_back(vec3(0, 0, 0.0f));
-    indices.push_back(indexed_vertices.size() - 1);
-
-    indexed_vertices.push_back(vec3(pas, 0, 0.0f));
-    indices.push_back(indexed_vertices.size() - 1);
-
-    indexed_vertices.push_back(vec3(0, -pas, 0.0f));
-    indices.push_back(indexed_vertices.size() - 1);
-
-
-    indexed_vertices.push_back(vec3(pas, 0, 0.0f));
-    indices.push_back(indexed_vertices.size() - 1);
-
-    indexed_vertices.push_back(vec3(pas, -pas, 0.0f));
-    indices.push_back(indexed_vertices.size() - 1);
-
-    indexed_vertices.push_back(vec3(0, -pas, 0.0f));
-    indices.push_back(indexed_vertices.size() - 1);
 
     // Load it into a VBO
 
@@ -121,6 +147,12 @@ int main(void)
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    // tell GLFW to capture our mouse
+    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Initialize GLEW
     glewExperimental = true; // Needed for core profile
@@ -151,7 +183,7 @@ int main(void)
 
     // Cull triangles which normal is not towards the camera
     // glEnable(GL_CULL_FACE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -171,7 +203,7 @@ int main(void)
     // Chargement du fichier de maillage
     std::string filename("chair.off");
     // loadOFF(filename, indexed_vertices, indices, triangles );
-    makePlan(1.0);
+    makePlan(16.0);
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -180,6 +212,8 @@ int main(void)
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
+
+    GLuint texture = loadBMP_custom("../lavabis.bmp");
 
     do
     {
@@ -239,8 +273,6 @@ int main(void)
             (void *)0          // element array buffer offset
         );
 
-        glDisableVertexAttribArray(0);
-
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -270,10 +302,14 @@ void processInput(GLFWwindow *window)
 
     // Camera zoom in and out
     float cameraSpeed = 2.5 * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         camera_position += cameraSpeed * camera_target;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         camera_position -= cameraSpeed * camera_target;
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera_position -= glm::normalize(cross(camera_target, camera_up)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera_position += glm::normalize(cross(camera_target, camera_up)) * cameraSpeed;
 
     // TODO add translations
 }
@@ -285,4 +321,54 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f; // change this value to your liking
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    camera_target = glm::normalize(front);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f;
 }

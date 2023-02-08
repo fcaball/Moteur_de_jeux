@@ -1,10 +1,14 @@
 #version 330 core
 
 // Ouput data
-out vec3 color;
+out vec4 color;
+in vec2 o_uv0;
+uniform sampler2D colorText;
+
 
 void main(){
 
-        color =vec3(0.2, 0.2,0.4);
+        color =texture(colorText,o_uv0);
+        // color =vec4(o_uv0,0,1);
 
 }

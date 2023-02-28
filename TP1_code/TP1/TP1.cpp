@@ -231,7 +231,7 @@ int main(void)
 
     // Cull triangles which normal is not towards the camera
     // glEnable(GL_CULL_FACE);
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -264,7 +264,7 @@ int main(void)
     GLuint texture = loadBMP_custom("../lavabis.bmp");
     glActiveTexture(texture);
 
-    GLuint heightmap = loadTexture2DFromFilePath("../textures/Heightmap_Mountain.png");
+    GLuint heightmap = loadTexture2DFromFilePath("../textures/Heightmap_Mountain.bmp");
     
     if (texture != -1)
 	{

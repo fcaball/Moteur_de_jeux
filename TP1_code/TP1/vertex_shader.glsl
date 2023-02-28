@@ -2,6 +2,7 @@
 
 // Input vertex data, different for all executions of this shader.
 layout(location = 0) in vec3 vertices_position_modelspace;
+layout(location = 1) in vec2 uv;
 
 uniform mat4 modelM;
 uniform mat4 viewM;
@@ -15,7 +16,7 @@ out vec2 o_uv0;
 
 void main(){
 
-        o_uv0=vec2(vertices_position_modelspace[0],vertices_position_modelspace[2]);
+        o_uv0=uv;
         // TODO : Output position of the vertex, in clip space : MVP * position
         gl_Position =   projM*viewM*modelM*vec4(vertices_position_modelspace,1);
 

@@ -24,19 +24,27 @@ using namespace glm;
 #include <common/vboindexer.hpp>
 
 void processInput(GLFWwindow *window);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow *window);
-
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+// void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 camera_up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraFree_position = glm::vec3(0.0f, .0f, 3.0f);
+glm::vec3 cameraFree_target = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraFree_direction = glm::normalize(cameraFree_position - cameraFree_target); // /!\pointe dans la direction inverse
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraFree_right = glm::normalize(glm::cross(up, cameraFree_direction));
+glm::vec3 cameraFree_up = glm::cross(cameraFree_direction, cameraFree_right);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+
+glm::vec3 cameraOrbit_position = glm::vec3(0.0f, .0f, 3.0f);
+glm::vec3 cameraOrbit_target = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraOrbit_direction = glm::normalize(cameraOrbit_position - cameraOrbit_target); // /!\pointe dans la direction inverse
+glm::vec3 cameraOrbit_right = glm::normalize(glm::cross(up, cameraOrbit_direction));
+glm::vec3 cameraOrbit_up = glm::cross(cameraOrbit_direction, cameraFree_right);
 
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
@@ -47,11 +55,15 @@ float angle = 0.;
 float zoom = 1.;
 
 bool firstMouse = true;
-float yaw   = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-float pitch =  0.0f;
-float lastX =  800.0f / 2.0;
-float lastY =  600.0 / 2.0;
-float fov   =  45.0f;
+float yaw = -90.0f; // yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float pitch = 0.0f;
+float lastX = 800.0f / 2.0;
+float lastY = 600.0 / 2.0;
+float fov = 45.0f;
+
+bool orbitmode = false;
+bool presentationmode = true;
+bool freemode = false;
 
 /*******************************************************************************/
 
@@ -60,54 +72,65 @@ glm::mat4 viewMatrix;
 glm::mat4 projMatrix;
 std::vector<unsigned short> indices; // Triangles concaténés dans une liste
 std::vector<glm::vec3> indexed_vertices;
-std::vector<GLfloat> texCoords;
+std::vector<float> texCoords;
 GLuint vertexbuffer;
 GLuint elementbuffer;
+GLuint uv;
+int resolutionX = 2;
+int sizeX = 1;
+int resolutionY = 2;
+int sizeY = 1;
 
-int addOnce(std::vector<glm::vec3> &A, vec3 v)
+float vitesse = 0.05;
+
+void makePlan(int nX, int nY, int sizeX, int sizeY)
 {
-    for (size_t i = 0; i < A.size(); i++)
+    // float pas = 4 / resolution;
+    indexed_vertices.clear();
+    indices.clear();
+    texCoords.clear();
+    for (size_t i = 0; i <= nX; i++)
     {
-        if (A[i][0] == v[0] && A[i][2] == v[2] /* && A[i][2] == v[2] */)
-            return i;
-    }
-    A.push_back(v);
-    return A.size() - 1;
-}
-
-void makePlan(float resolution)
-{
-    float pas = 1 / resolution;
-
-    for (size_t i = 0; i < resolution; i++)
-    {
-        for (size_t j = 0; j < resolution; j++)
+        for (size_t j = 0; j <= nY; j++)
         {
-            int index = 0;
-            float r00 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
-            float r10 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
-            float r01 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
-            float r11 = -0.05 + static_cast<float>(rand()) * static_cast<float>(0.1) / RAND_MAX;
-            index = addOnce(indexed_vertices, vec3(i * pas, /* (float) rand()/(float)RAND_MAX) */r00, j * pas));
-            indices.push_back(index);
-
-            index = addOnce(indexed_vertices, vec3((i + 1) * pas, /* (float) rand()/(float)RAND_MAX) */ r10, j * pas));
-            indices.push_back(index);
-
-            index = addOnce(indexed_vertices, vec3(i * pas, /* (float) rand()/(float)RAND_MAX) */r01, (j + 1) * pas));
-            indices.push_back(index);
-
-            index = addOnce(indexed_vertices, vec3((i + 1) * pas, /* (float) rand()/(float)RAND_MAX) */ r11, (j + 1) * pas));
-            indices.push_back(index);
-
-            index = addOnce(indexed_vertices, vec3((i + 1) * pas, /* (float) rand()/(float)RAND_MAX) */ r10, j * pas));
-            indices.push_back(index);
-
-            index = addOnce(indexed_vertices, vec3(i * pas, /* (float) rand()/(float)RAND_MAX) */ r01, (j + 1) * pas));
-            indices.push_back(index);
+            float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+            indexed_vertices.push_back(vec3(((float)sizeX / (float)nX) * i, r, ((float)sizeY / (float)nY) * j));
+            texCoords.push_back((float)i / (float)nX);
+            texCoords.push_back((float)j / (float)nY);
         }
     }
-    
+    // std::cout<<indexed_vertices.size()<<std::endl;
+
+    for (size_t i = 0; i < nX; i++)
+    {
+        for (size_t j = 0; j < nY; j++)
+        {
+            indices.push_back((i + 1) * (nX + 1) + j);
+            indices.push_back((i + 1) * (nX + 1) + j + 1);
+            indices.push_back(i * (nX + 1) + j + 1);
+            /* ___
+               \  |
+                \ |
+                 \| */
+
+            indices.push_back(i * (nX + 1) + j);
+            indices.push_back((i + 1) * (nX + 1) + j);
+            indices.push_back(i * (nX + 1) + j + 1);
+            /*
+              |\
+              | \
+              |__\  */
+
+            texCoords.push_back((float)(i + 1) / (float)nX);
+            texCoords.push_back((float)j / (float)nY);
+
+            texCoords.push_back((float)(i + 1) / (float)nX);
+            texCoords.push_back((float)(j + 1) / (float)nY);
+
+            texCoords.push_back((float)(i) / (float)nX);
+            texCoords.push_back((float)(j + 1) / (float)nY);
+        }
+    }
 
     // Load it into a VBO
 
@@ -119,6 +142,10 @@ void makePlan(float resolution)
     glGenBuffers(1, &elementbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
+
+    glGenBuffers(1, &uv);
+    glBindBuffer(GL_ARRAY_BUFFER, uv);
+    glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(unsigned short), &texCoords[0], GL_STATIC_DRAW);
 }
 
 int main(void)
@@ -148,7 +175,7 @@ int main(void)
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    // glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
     // tell GLFW to capture our mouse
@@ -203,7 +230,7 @@ int main(void)
     // Chargement du fichier de maillage
     std::string filename("chair.off");
     // loadOFF(filename, indexed_vertices, indices, triangles );
-    makePlan(16.0);
+    makePlan(resolutionX, resolutionY, sizeX, sizeY);
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -214,6 +241,10 @@ int main(void)
     int nbFrames = 0;
 
     GLuint texture = loadBMP_custom("../lavabis.bmp");
+    glActiveTexture(texture);
+
+    // GLuint heightmap = loadTexture2DFromFilePath("../textures/Heightmap_Mountain.png");
+    // glActiveTexture(heightmap);
 
     do
     {
@@ -238,8 +269,29 @@ int main(void)
         /*****************TODO***********************/
         // Model matrix : an identity matrix (model will be at the origin) then change
 
-        // View matrix : camera/view transformation lookat() utiliser camera_position camera_target camera_up
-        viewMatrix = glm::lookAt(camera_position, camera_target, camera_up);
+        // View matrix : camera/view transformation lookat() utiliser cameraFree_position cameraFree_target cameraFree_up
+        // LIBRE
+        if (freemode)
+        {
+            std::cout << "Mode de caméra : libre" << std::endl;
+            viewMatrix = glm::lookAt(cameraFree_position, cameraFree_position + cameraFront, cameraFree_up);
+        }
+        // ORBIT
+        if (orbitmode)
+        {
+            std::cout << "Mode de caméra : orbital" << std::endl;
+            viewMatrix = glm::lookAt(cameraOrbit_position, cameraOrbit_target, cameraOrbit_up);
+        }
+        // Rotate animation
+        if (presentationmode)
+        {
+            std::cout << "Mode de caméra : présentation" << std::endl;
+            const float radius = 5.0f;
+            float camX = sin(glfwGetTime()) * radius;
+            float camZ = cos(glfwGetTime()) * radius;
+            viewMatrix = glm::lookAt(glm::vec3(camX, 0.0, camZ), cameraFree_target, up);
+        }
+
         // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
         projMatrix = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
         // Send our transformation to the currently bound shader,
@@ -256,6 +308,17 @@ int main(void)
         glVertexAttribPointer(
             0,        // attribute
             3,        // size
+            GL_FLOAT, // type
+            GL_FALSE, // normalized?
+            0,        // stride
+            (void *)0 // array buffer offset
+        );
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, uv);
+        glVertexAttribPointer(
+            1,        // attribute
+            2,        // size
             GL_FLOAT, // type
             GL_FALSE, // normalized?
             0,        // stride
@@ -297,20 +360,94 @@ int main(void)
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    const float polarangle = 20;
+    const float azimuthangle = 20;
+    const float radius = 5;
 
-    // Camera zoom in and out
-    float cameraSpeed = 2.5 * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        camera_position += cameraSpeed * camera_target;
+    const float cameraSpeed = 4 * deltaTime; // adjust accordingly
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        if (freemode)
+        {
+            cameraFree_position += cameraSpeed * cameraFront;
+        }
+        if (orbitmode)
+        {
+            cameraOrbit_position += glm::normalize((cameraOrbit_target - cameraOrbit_position) + cameraOrbit_up);
+        }
+    }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera_position -= cameraSpeed * camera_target;
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera_position -= glm::normalize(cross(camera_target, camera_up)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera_position += glm::normalize(cross(camera_target, camera_up)) * cameraSpeed;
+    {
+        if (freemode)
+            cameraFree_position -= cameraSpeed * cameraFront;
+        if (orbitmode)
+            cameraOrbit_position -= glm::normalize((cameraOrbit_target - cameraOrbit_position) + cameraOrbit_up);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        if (freemode)
+            cameraFree_position -= glm::normalize(glm::cross(cameraFront, cameraFree_up)) * cameraSpeed;
+        if (orbitmode)
+        {
+            cameraOrbit_position -= glm::normalize(glm::cross((cameraOrbit_target - cameraOrbit_position), cameraOrbit_up)) * cameraSpeed;
+        }
+    }
 
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        if (freemode)
+            cameraFree_position += glm::normalize(glm::cross(cameraFront, cameraFree_up)) * cameraSpeed;
+        if (orbitmode)
+        {
+            cameraOrbit_position += glm::normalize(glm::cross((cameraOrbit_target - cameraOrbit_position), cameraOrbit_up)) * cameraSpeed;
+        }
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS)
+    {
+        resolutionX++;
+        resolutionY++;
+        makePlan(resolutionX, resolutionY, sizeX, sizeY);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS)
+    {
+        if (resolutionX > 1 && resolutionY > 1)
+        {
+            resolutionX--;
+            resolutionY--;
+        }
+        makePlan(resolutionX, resolutionY, sizeX, sizeY);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+    {
+        cameraFree_position += vec3(0, 10, 0);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+    {
+
+        presentationmode = true;
+        freemode = false;
+        orbitmode = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    {
+        if (freemode)
+        {
+            presentationmode = false;
+            freemode = false;
+            orbitmode = true;
+        }
+        else
+        {
+
+            presentationmode = false;
+            freemode = true;
+            orbitmode = false;
+        }
+    }
     // TODO add translations
 }
 
@@ -325,46 +462,47 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
+// void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
+// {
 
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
+//     float xpos = static_cast<float>(xposIn);
+//     float ypos = static_cast<float>(yposIn);
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-    lastX = xpos;
-    lastY = ypos;
+//     if (firstMouse)
+//     {
+//         lastX = xpos;
+//         lastY = ypos;
+//         firstMouse = false;
+//     }
 
-    float sensitivity = 0.1f; // change this value to your liking
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
+//     float xoffset = xpos - lastX;
+//     float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+//     lastX = xpos;
+//     lastY = ypos;
 
-    yaw += xoffset;
-    pitch += yoffset;
+//     float sensitivity = 0.1f; // change this value to your liking
+//     xoffset *= sensitivity;
+//     yoffset *= sensitivity;
 
-    // make sure that when pitch is out of bounds, screen doesn't get flipped
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
+//     yaw -= xoffset;
+//     pitch -= yoffset;
 
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    camera_target = glm::normalize(front);
-}
+//     // make sure that when pitch is out of bounds, screen doesn't get flipped
+//     if (pitch > 89.0f)
+//         pitch = 89.0f;
+//     if (pitch < -89.0f)
+//         pitch = -89.0f;
+
+//     glm::vec3 front;
+//     front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+//     front.y = sin(glm::radians(pitch));
+//     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+//     cameraFree_target = glm::normalize(front);
+// }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
     fov -= (float)yoffset;
     if (fov < 1.0f)

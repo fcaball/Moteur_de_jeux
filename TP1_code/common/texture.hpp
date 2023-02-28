@@ -17,5 +17,6 @@ GLuint loadDDS(const char * imagepath);
 
 GLuint loadTexture2DFromFilePath(const std::string& path);
 
+unsigned char* getData(char* path,int &width, int &height, int &nChannels);
 
 #endif

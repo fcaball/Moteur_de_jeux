@@ -25,8 +25,6 @@ using namespace glm;
 
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-// void mouse_callback(GLFWwindow *window, double xpos, double ypos);
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -76,6 +74,8 @@ std::vector<float> texCoords;
 GLuint vertexbuffer;
 GLuint elementbuffer;
 GLuint uv;
+GLuint hmap;
+
 int resolutionX = 2;
 int sizeX = 1;
 int resolutionY = 2;
@@ -89,12 +89,19 @@ void makePlan(int nX, int nY, int sizeX, int sizeY)
     indexed_vertices.clear();
     indices.clear();
     texCoords.clear();
+    int width, height, nChannels;
+
+    unsigned char *data = getData("../textures/images.jpeg", width, height, nChannels);
+
     for (size_t i = 0; i <= nX; i++)
     {
         for (size_t j = 0; j <= nY; j++)
         {
+            unsigned char *texel = data + (j + width * i) * nChannels;
+            // raw height at coordinate
+            unsigned char y = texel[0];
             float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-            indexed_vertices.push_back(vec3(((float)sizeX / (float)nX) * i, r, ((float)sizeY / (float)nY) * j));
+            indexed_vertices.push_back(vec3(((float)sizeX / (float)nX) * i, ((float)data[i * width + j]), ((float)sizeY / (float)nY) * j));
             texCoords.push_back((float)i / (float)nX);
             texCoords.push_back((float)j / (float)nY);
         }
@@ -129,6 +136,15 @@ void makePlan(int nX, int nY, int sizeX, int sizeY)
 
             texCoords.push_back((float)(i) / (float)nX);
             texCoords.push_back((float)(j + 1) / (float)nY);
+
+            texCoords.push_back((float)(i) / (float)nX);
+            texCoords.push_back((float)j / (float)nY);
+
+            texCoords.push_back((float)(i + 1) / (float)nX);
+            texCoords.push_back((float)(j) / (float)nY);
+
+            texCoords.push_back((float)(i) / (float)nX);
+            texCoords.push_back((float)(j + 1) / (float)nY);
         }
     }
 
@@ -146,6 +162,13 @@ void makePlan(int nX, int nY, int sizeX, int sizeY)
     glGenBuffers(1, &uv);
     glBindBuffer(GL_ARRAY_BUFFER, uv);
     glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(unsigned short), &texCoords[0], GL_STATIC_DRAW);
+
+    // std::cout << width << " " << height << " " << nChannels << std::endl;
+    // std::vector<int> heightmap;
+
+    // glGenBuffers(1, &hmap);
+    // glBindBuffer(GL_ARRAY_BUFFER, hmap);
+    // glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(int), &texCoords[0], GL_STATIC_DRAW);
 }
 
 int main(void)
@@ -175,8 +198,6 @@ int main(void)
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    // glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
 
     // tell GLFW to capture our mouse
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -243,8 +264,22 @@ int main(void)
     GLuint texture = loadBMP_custom("../lavabis.bmp");
     glActiveTexture(texture);
 
-    // GLuint heightmap = loadTexture2DFromFilePath("../textures/Heightmap_Mountain.png");
-    // glActiveTexture(heightmap);
+    GLuint heightmap = loadTexture2DFromFilePath("../textures/Heightmap_Mountain.png");
+    
+    if (texture != -1)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glUniform1i(glGetUniformLocation(programID, "colorText"), 0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+	}
+
+	if (heightmap != -1)
+	{
+		glActiveTexture(GL_TEXTURE0+1);
+		glUniform1i(glGetUniformLocation(programID, "heightMapTexture"), 1);
+		glBindTexture(GL_TEXTURE_2D, heightmap);
+	}
 
     do
     {
@@ -273,23 +308,21 @@ int main(void)
         // LIBRE
         if (freemode)
         {
-            std::cout << "Mode de caméra : libre" << std::endl;
             viewMatrix = glm::lookAt(cameraFree_position, cameraFree_position + cameraFront, cameraFree_up);
         }
         // ORBIT
         if (orbitmode)
         {
-            std::cout << "Mode de caméra : orbital" << std::endl;
+            // std::cout << "Mode de caméra : orbital" << std::endl;
             viewMatrix = glm::lookAt(cameraOrbit_position, cameraOrbit_target, cameraOrbit_up);
         }
         // Rotate animation
         if (presentationmode)
         {
-            std::cout << "Mode de caméra : présentation" << std::endl;
             const float radius = 5.0f;
             float camX = sin(glfwGetTime()) * radius;
             float camZ = cos(glfwGetTime()) * radius;
-            viewMatrix = glm::lookAt(glm::vec3(camX, 0.0, camZ), cameraFree_target, up);
+            viewMatrix = glm::lookAt(glm::vec3(camX, 4.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
         }
 
         // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
@@ -324,6 +357,17 @@ int main(void)
             0,        // stride
             (void *)0 // array buffer offset
         );
+
+        // glEnableVertexAttribArray(2);
+        // glBindBuffer(GL_ARRAY_BUFFER, hmap);
+        // glVertexAttribPointer(
+        //     2,        // attribute
+        //     1,        // size
+        //     GL_FLOAT, // type
+        //     GL_FALSE, // normalized?
+        //     0,        // stride
+        //     (void *)0 // array buffer offset
+        // );
 
         // Index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -373,7 +417,9 @@ void processInput(GLFWwindow *window)
         }
         if (orbitmode)
         {
-            cameraOrbit_position += glm::normalize((cameraOrbit_target - cameraOrbit_position) + cameraOrbit_up);
+            std::cout << cameraOrbit_position.y << std::endl;
+            if (/* glm::dot(cameraOrbit_target-cameraOrbit_position,glm::vec3(1,0,0))<0 */ cameraOrbit_position.y < 5)
+                cameraOrbit_position += glm::normalize(cameraOrbit_up) * 0.2f;
         }
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -381,7 +427,8 @@ void processInput(GLFWwindow *window)
         if (freemode)
             cameraFree_position -= cameraSpeed * cameraFront;
         if (orbitmode)
-            cameraOrbit_position -= glm::normalize((cameraOrbit_target - cameraOrbit_position) + cameraOrbit_up);
+            if (glm::dot(cameraOrbit_target - cameraOrbit_position, glm::vec3(0, 1, 0)) < 0)
+                cameraOrbit_position -= glm::normalize(cameraOrbit_up) * 0.2f;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
@@ -458,55 +505,4 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
-}
-
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
-// void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
-// {
-
-//     float xpos = static_cast<float>(xposIn);
-//     float ypos = static_cast<float>(yposIn);
-
-//     if (firstMouse)
-//     {
-//         lastX = xpos;
-//         lastY = ypos;
-//         firstMouse = false;
-//     }
-
-//     float xoffset = xpos - lastX;
-//     float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-//     lastX = xpos;
-//     lastY = ypos;
-
-//     float sensitivity = 0.1f; // change this value to your liking
-//     xoffset *= sensitivity;
-//     yoffset *= sensitivity;
-
-//     yaw -= xoffset;
-//     pitch -= yoffset;
-
-//     // make sure that when pitch is out of bounds, screen doesn't get flipped
-//     if (pitch > 89.0f)
-//         pitch = 89.0f;
-//     if (pitch < -89.0f)
-//         pitch = -89.0f;
-
-//     glm::vec3 front;
-//     front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-//     front.y = sin(glm::radians(pitch));
-//     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-//     cameraFree_target = glm::normalize(front);
-// }
-
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
-{
-    fov -= (float)yoffset;
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 45.0f)
-        fov = 45.0f;
 }

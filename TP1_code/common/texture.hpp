@@ -16,6 +16,8 @@ GLuint loadBMP_custom(const char * imagepath);
 GLuint loadDDS(const char * imagepath);
 
 GLuint loadTexture2DFromFilePath(const std::string& path);
+GLuint loadTexture2DFromFilePath(const std::string &path,int &width,int &height, int nrChannels);
+
 
 unsigned char* getData(char* path,int &width, int &height, int &nChannels);
 

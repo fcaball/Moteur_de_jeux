@@ -3,12 +3,20 @@
 // Ouput data
 out vec4 color;
 in vec2 o_uv0;
-uniform sampler2D colorText;
+// flat in int numText;
+
+uniform sampler2D text;
+in vec4 boundsAndheight;
 
 
 void main(){
 
-        color =texture(colorText,o_uv0);
-        // color =vec4(o_uv0,0,1);
+        // if(boundsAndheight[3]<boundsAndheight[1]){
+        //         color =texture(grass,o_uv0);
+        // }else if(boundsAndheight[3]<boundsAndheight[2]){
+        //         color =texture(rock,o_uv0);
+        // }else {
+           color =texture(text,o_uv0);
+        // }
 
 }

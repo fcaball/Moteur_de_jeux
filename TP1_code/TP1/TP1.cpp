@@ -17,20 +17,27 @@ GLFWwindow *window;
 #include <iostream>
 
 using namespace glm;
+using namespace std;
 
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
-#include <common/texture.hpp>
 #include <common/vboindexer.hpp>
+#include <common/texture.hpp>
+#include <TP1/ObjectPlan.hpp>
+#include <TP1/ObjectLoaded.hpp>
+#include <pthread.h>
+#include <chrono>
+#include <thread>
 
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void updateSpherePos();
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-glm::vec3 cameraFree_position = glm::vec3(0.0f, .0f, 3.0f);
+glm::vec3 cameraFree_position = glm::vec3(0.0f, 1.0f, 3.0f);
 glm::vec3 cameraFree_target = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 cameraFree_direction = glm::normalize(cameraFree_position - cameraFree_target); // /!\pointe dans la direction inverse
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -47,6 +54,7 @@ glm::vec3 cameraOrbit_up = glm::cross(cameraOrbit_direction, cameraFree_right);
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
 float lastFrame = 0.0f;
+int nbFrames = 0;
 
 // rotation
 float angle = 0.;
@@ -65,7 +73,6 @@ bool freemode = false;
 
 /*******************************************************************************/
 
-glm::mat4 ModelMatrix;
 glm::mat4 viewMatrix;
 glm::mat4 projMatrix;
 std::vector<unsigned short> indices; // Triangles concaténés dans une liste
@@ -76,99 +83,55 @@ GLuint elementbuffer;
 GLuint uv;
 GLuint hmap;
 
+ObjectPlan *planHeightMap;
+
 int resolutionX = 2;
 int sizeX = 1;
 int resolutionY = 2;
 int sizeY = 1;
 
 float vitesse = 0.05;
+float rotateSpeed = 0.05;
 
-void makePlan(int nX, int nY, int sizeX, int sizeY)
+int renderDistance = 20;
+
+ObjectLoaded Soleil;
+vec3 centreSphere = vec3(0., 0, 0);
+
+void newPlan(Object3D &Parent, vec3 &offSetPrec)
 {
-    // float pas = 4 / resolution;
-    indexed_vertices.clear();
-    indices.clear();
-    texCoords.clear();
-    int width, height, nChannels;
 
-    unsigned char *data = getData("../textures/images.jpeg", width, height, nChannels);
-
-    for (size_t i = 0; i <= nX; i++)
+    if (cameraFree_position.z < -offSetPrec.z + renderDistance)
     {
-        for (size_t j = 0; j <= nY; j++)
+        for (size_t i = 0; i < 5; i++)
         {
-            unsigned char *texel = data + (j + width * i) * nChannels;
-            // raw height at coordinate
-            unsigned char y = texel[0];
-            float r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-            indexed_vertices.push_back(vec3(((float)sizeX / (float)nX) * i, ((float)data[i * width + j]), ((float)sizeY / (float)nY) * j));
-            texCoords.push_back((float)i / (float)nX);
-            texCoords.push_back((float)j / (float)nY);
+            Object3D *plan2 = new ObjectPlan(2, 2, 4, 4, offSetPrec.x + i - 2, offSetPrec.z + 1, true);
+            plan2->loadTexture("../textures/rock.png");
+            // Parent.addChild(*plan2);
         }
-    }
-    // std::cout<<indexed_vertices.size()<<std::endl;
+        for (size_t i = 0; i < Parent.getChilds().size(); i++)
+        {
+            vector<vec3> verticesfils = Parent.getChilds()[i]->getVertices();
+            if (verticesfils[verticesfils.size() - 1].z > cameraFree_position.z + 3)
+            {
+                Parent.removeChild(i);
+            }
+        }
 
-    for (size_t i = 0; i < nX; i++)
+        offSetPrec.z++;
+    }
+}
+
+void *updateFPS(void *params)
+{
+    string s = "FPS - ";
+    while (true)
     {
-        for (size_t j = 0; j < nY; j++)
-        {
-            indices.push_back((i + 1) * (nX + 1) + j);
-            indices.push_back((i + 1) * (nX + 1) + j + 1);
-            indices.push_back(i * (nX + 1) + j + 1);
-            /* ___
-               \  |
-                \ |
-                 \| */
 
-            indices.push_back(i * (nX + 1) + j);
-            indices.push_back((i + 1) * (nX + 1) + j);
-            indices.push_back(i * (nX + 1) + j + 1);
-            /*
-              |\
-              | \
-              |__\  */
-
-            texCoords.push_back((float)(i + 1) / (float)nX);
-            texCoords.push_back((float)j / (float)nY);
-
-            texCoords.push_back((float)(i + 1) / (float)nX);
-            texCoords.push_back((float)(j + 1) / (float)nY);
-
-            texCoords.push_back((float)(i) / (float)nX);
-            texCoords.push_back((float)(j + 1) / (float)nY);
-
-            texCoords.push_back((float)(i) / (float)nX);
-            texCoords.push_back((float)j / (float)nY);
-
-            texCoords.push_back((float)(i + 1) / (float)nX);
-            texCoords.push_back((float)(j) / (float)nY);
-
-            texCoords.push_back((float)(i) / (float)nX);
-            texCoords.push_back((float)(j + 1) / (float)nY);
-        }
+        glfwSetWindowTitle(window, (s + to_string(nbFrames)).c_str());
+        nbFrames = 0;
+        this_thread::sleep_for(1000ms);
     }
-
-    // Load it into a VBO
-
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
-
-    // Generate a buffer for the indices as well
-    glGenBuffers(1, &elementbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
-
-    glGenBuffers(1, &uv);
-    glBindBuffer(GL_ARRAY_BUFFER, uv);
-    glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(unsigned short), &texCoords[0], GL_STATIC_DRAW);
-
-    // std::cout << width << " " << height << " " << nChannels << std::endl;
-    // std::vector<int> heightmap;
-
-    // glGenBuffers(1, &hmap);
-    // glBindBuffer(GL_ARRAY_BUFFER, hmap);
-    // glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(int), &texCoords[0], GL_STATIC_DRAW);
 }
 
 int main(void)
@@ -231,7 +194,7 @@ int main(void)
 
     // Cull triangles which normal is not towards the camera
     // glEnable(GL_CULL_FACE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
@@ -242,7 +205,6 @@ int main(void)
 
     /*****************TODO***********************/
     // Get a handle for our "Model View Projection" matrices uniforms
-    ModelMatrix = glm::mat4(1.f);
     viewMatrix = glm::mat4(1.f);
     projMatrix = glm::mat4(1.f);
     /****************************************/
@@ -251,7 +213,6 @@ int main(void)
     // Chargement du fichier de maillage
     std::string filename("chair.off");
     // loadOFF(filename, indexed_vertices, indices, triangles );
-    makePlan(resolutionX, resolutionY, sizeX, sizeY);
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -259,37 +220,61 @@ int main(void)
 
     // For speed computation
     double lastTime = glfwGetTime();
-    int nbFrames = 0;
 
-    GLuint texture = loadBMP_custom("../lavabis.bmp");
-    glActiveTexture(texture);
+    Soleil.loadObject("./newbunnyPQ10.off");
+    int ObjectState = 1;
+    Soleil.loadTexture("../textures/sun.jpg");
+    Soleil.transform.Translate(vec3(0, 0, 0));
+    Soleil.transform.Scale(vec3(1, 1, 1));
 
-    GLuint heightmap = loadTexture2DFromFilePath("../textures/Heightmap_Mountain.bmp");
-    
-    if (texture != -1)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		glUniform1i(glGetUniformLocation(programID, "colorText"), 0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+    ObjectLoaded Terre;
+    Terre.loadObject("./sphere.off");
+    Terre.loadTexture("../textures/earth.jpg");
 
-	}
+    float rayonTerre = 12;
+    float rayonLune = 5;
 
-	if (heightmap != -1)
-	{
-		glActiveTexture(GL_TEXTURE0+1);
-		glUniform1i(glGetUniformLocation(programID, "heightMapTexture"), 1);
-		glBindTexture(GL_TEXTURE_2D, heightmap);
-	}
+    // Soleil.addChild(Terre);
+    Terre.transform.Scale(vec3(0.2, 0.2, 0.2));
+    Terre.transform.Translate(vec3(rayonTerre, 0., 0.));
+    // Terre.transform.Rotation(vec3(0, 0, 1), glm::radians(23.44f));
+
+    ObjectLoaded Lune;
+    Lune.loadObject("./sphere.off");
+    Lune.loadTexture("../textures/moon.jpg");
+
+    Terre.addChild(&Lune);
+    Lune.transform.Scale(vec3(0.5, 0.5, 0.5));
+    Lune.transform.Translate(vec3(rayonLune, 0, 0));
+    ObjectPlan plan2(resolutionX, resolutionY, 4, 4, 2, 2, true, "../textures/heightMap2.jpeg",1);
+    plan2.loadTexture("../textures/snowrocks.png");
+
+    planHeightMap = &plan2;
+
+    Object3D planInfini;
+    planInfini.addChild(&Soleil);
+    vec3 currentOffSet = vec3(0, 0, 0);
+
+    planInfini.addChild(&plan2);
+
+    pthread_t thread;
+
+    if (pthread_create(&thread, NULL, updateFPS, (void *)0) != 0)
+    {
+        perror("erreur creation thread");
+        exit(1);
+    }
 
     do
     {
-
         // Measure speed
         // per-frame time logic
         // --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        nbFrames++;
 
         // input
         // -----
@@ -319,66 +304,122 @@ int main(void)
         // Rotate animation
         if (presentationmode)
         {
-            const float radius = 5.0f;
-            float camX = sin(glfwGetTime()) * radius;
-            float camZ = cos(glfwGetTime()) * radius;
-            viewMatrix = glm::lookAt(glm::vec3(camX, 4.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+            // ModelMatrix = rotate(ModelMatrix,rotateSpeed,glm::vec3(0,1,0));
+            viewMatrix = glm::lookAt(glm::vec3(0, 3, 3), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
         }
 
         // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
         projMatrix = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 100.0f);
         // Send our transformation to the currently bound shader,
         // in the "Model View Projection" to the shader uniforms
-        glUniformMatrix4fv(glGetUniformLocation(programID, "modelM"), 1, GL_FALSE, &ModelMatrix[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(programID, "viewM"), 1, GL_FALSE, &viewMatrix[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(programID, "projM"), 1, GL_FALSE, &projMatrix[0][0]);
 
-        /****************************************/
+        // Terre.transform.Translate(vec3(-rayonTerre, 0, 0));
+        // Terre.transform.Rotation(vec3(0, 1, 0), glm::radians(2.0f));
+        // Terre.transform.Translate(vec3(rayonTerre, 0, 0));
 
-        // 1rst attribute buffer : vertices
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glVertexAttribPointer(
-            0,        // attribute
-            3,        // size
-            GL_FLOAT, // type
-            GL_FALSE, // normalized?
-            0,        // stride
-            (void *)0 // array buffer offset
-        );
+        // Lune.transform.Translate(vec3(-rayonLune, 0, 0));
+        // Lune.transform.Rotation(vec3(0, 1, 0), glm::radians(2.0f));
+        // Lune.transform.Translate(vec3(rayonLune, 0, 0));
 
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, uv);
-        glVertexAttribPointer(
-            1,        // attribute
-            2,        // size
-            GL_FLOAT, // type
-            GL_FALSE, // normalized?
-            0,        // stride
-            (void *)0 // array buffer offset
-        );
+        // SPHÈRE QUI SE BALADE SUR LE TERRAIN
+        /* vector<unsigned short> indices = plan2.getIndices();
+        vector<vec3> vertices = plan2.getVertices();
+        vector<unsigned short> goodTri;
 
-        // glEnableVertexAttribArray(2);
-        // glBindBuffer(GL_ARRAY_BUFFER, hmap);
-        // glVertexAttribPointer(
-        //     2,        // attribute
-        //     1,        // size
-        //     GL_FLOAT, // type
-        //     GL_FALSE, // normalized?
-        //     0,        // stride
-        //     (void *)0 // array buffer offset
-        // );
+        float Goodalpha1=0;
+        float Goodalpha2=0;
+        float Goodalpha0=0;
 
-        // Index buffer
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+        for (size_t i = 0; i < indices.size(); i += 6)
+        {
+            if (vertices[indices[i]].x > centreSphere.x && vertices[indices[i]].z > centreSphere.z ||
+                vertices[indices[i + 1]].x > centreSphere.x && vertices[indices[i + 1]].z > centreSphere.z ||
+                vertices[indices[i + 2]].x > centreSphere.x && vertices[indices[i + 2]].z > centreSphere.z)
+            {
+                vec3 vect1 = vertices[indices[i + 1]] - vertices[indices[i]];
+                vec3 vect2 = vertices[indices[i + 2]] - vertices[indices[i]];
+                vec3 vect3 = centreSphere - vertices[indices[i]];
 
-        // Draw the triangles !
-        glDrawElements(
-            GL_TRIANGLES,      // mode
-            indices.size(),    // count
-            GL_UNSIGNED_SHORT, // type
-            (void *)0          // element array buffer offset
-        );
+                float dot11 = glm::dot(vect1, vect1);
+                float dot12 = glm::dot(vect1, vect2);
+                float dot22 = glm::dot(vect2, vect2);
+                float dot31 = glm::dot(vect3, vect1);
+                float dot32 = glm::dot(vect3, vect2);
+                float denom = dot11 * dot22 - dot12 * dot12;
+                float alpha1 = (float)(dot22 * dot31 - dot12 * dot32) / (float)denom;
+                float alpha2 = (float)(dot11 * dot32 - dot12 * dot31) / (float)denom;
+                float alpha0 = 1.0f - alpha1 - alpha2;
+                if (alpha0 < 1 && alpha1 < 1 && alpha2 < 1 && alpha0 > 0 && alpha1 > 0 && alpha2 > 0)
+                {
+                    goodTri.push_back(indices[i]);
+                    goodTri.push_back(indices[i + 1]);
+                    goodTri.push_back(indices[i + 2]);
+                    Goodalpha1 = alpha1;
+                    Goodalpha2 = alpha2;
+                    Goodalpha0 = alpha0;
+                }
+                else
+                {
+                    goodTri.push_back(indices[i + 3]);
+                    goodTri.push_back(indices[i + 3 + 1]);
+                    goodTri.push_back(indices[i + 3 + 2]);
+                    vec3 vect1 = vertices[indices[i+3 + 1]] - vertices[indices[i+3]];
+                    vec3 vect2 = vertices[indices[i +3+ 2]] - vertices[indices[i+3]];
+                    vec3 vect3 = centreSphere - vertices[indices[i+3]];
+
+                    float dot11 = glm::dot(vect1, vect1);
+                    float dot12 = glm::dot(vect1, vect2);
+                    float dot22 = glm::dot(vect2, vect2);
+                    float dot31 = glm::dot(vect3, vect1);
+                    float dot32 = glm::dot(vect3, vect2);
+                    float denom = dot11 * dot22 - dot12 * dot12;
+                    Goodalpha1 =  (float)(dot22 * dot31 - dot12 * dot32) / (float)denom;
+                    Goodalpha2 =  (float)(dot11 * dot32 - dot12 * dot31) / (float)denom;
+                    Goodalpha0 =  1.0f - alpha1 - alpha2;
+                }
+            }
+        }
+
+        vec3 n = cross(centreSphere - vertices[goodTri[1]], centreSphere - vertices[goodTri[2]]);
+        n = normalize(n);
+        float normecentre_centreprojete = dot((centreSphere - vertices[goodTri[0]]), n) / sqrt(n.x * n.x + n.y * n.y + n.z * n.z);
+        vec3 CentreProjete = centreSphere - n * normecentre_centreprojete;
+        // cout<<CentreProjete.x<<" "<<CentreProjete.y<<" "<<CentreProjete.z<<endl;
+
+        cout << Goodalpha0 << " " << Goodalpha1 << " " << Goodalpha2 << endl;
+        
+        vector<vec2> uvs = plan2.getUVs();
+        vec2 UV = vec2(Goodalpha0 * uvs[goodTri[0]] + Goodalpha1 * uvs[goodTri[1]] + Goodalpha2 * uvs[goodTri[2]]);
+        int w, h, c;
+        unsigned char *HM = getData("../textures/rock.png", w, h, c);
+        float val = (float)HM[((int)UV.x * w + (int)UV.y)] / 255.0;
+
+        Soleil.transform.Translate(vec3(0, val * (1 / 0.2), 0));
+ */
+        // newPlan(planInfini, currentOffSet);
+
+
+        //CHANGEMENT DE RESOLUTION SELON LA DISTANCE AVEC PLUSIEURS .off
+        if (cameraFree_position.z > 20 && ObjectState != 3)
+        {
+            Soleil.loadObject("./newbunnyPQ3.off");
+            ObjectState = 3;
+        }
+        else if (cameraFree_position.z > 10 && cameraFree_position.z < 20 && ObjectState != 2)
+        {
+            Soleil.loadObject("./newbunnyPQ5.off");
+            ObjectState = 2;
+        }else if (cameraFree_position.z < 10 && ObjectState != 0){
+             Soleil.loadObject("./newbunnyPQ10.off");
+            ObjectState = 0;
+        }
+
+        planInfini.updateMeAndChilds();
+        planInfini.draw(programID);
+
+        //Soleil.transform.Translate(vec3(0, -val * (1 / 0.2), 0));
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -417,18 +458,18 @@ void processInput(GLFWwindow *window)
         }
         if (orbitmode)
         {
-            std::cout << cameraOrbit_position.y << std::endl;
-            if (/* glm::dot(cameraOrbit_target-cameraOrbit_position,glm::vec3(1,0,0))<0 */ cameraOrbit_position.y < 5)
-                cameraOrbit_position += glm::normalize(cameraOrbit_up) * 0.2f;
+            if (cameraOrbit_position.y < 6)
+                cameraOrbit_position += glm::normalize(cameraOrbit_up) * cameraSpeed;
         }
     }
+
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
         if (freemode)
             cameraFree_position -= cameraSpeed * cameraFront;
         if (orbitmode)
             if (glm::dot(cameraOrbit_target - cameraOrbit_position, glm::vec3(0, 1, 0)) < 0)
-                cameraOrbit_position -= glm::normalize(cameraOrbit_up) * 0.2f;
+                cameraOrbit_position -= glm::normalize(cameraOrbit_up) * cameraSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
@@ -454,7 +495,7 @@ void processInput(GLFWwindow *window)
     {
         resolutionX++;
         resolutionY++;
-        makePlan(resolutionX, resolutionY, sizeX, sizeY);
+        planHeightMap->changeResolution(resolutionX, resolutionY);
     }
 
     if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS)
@@ -464,7 +505,7 @@ void processInput(GLFWwindow *window)
             resolutionX--;
             resolutionY--;
         }
-        makePlan(resolutionX, resolutionY, sizeX, sizeY);
+        planHeightMap->changeResolution(resolutionX, resolutionY);
     }
 
     if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
@@ -479,21 +520,48 @@ void processInput(GLFWwindow *window)
         freemode = false;
         orbitmode = false;
     }
-    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
     {
-        if (freemode)
-        {
-            presentationmode = false;
-            freemode = false;
-            orbitmode = true;
-        }
-        else
-        {
+        presentationmode = false;
+        freemode = false;
+        orbitmode = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+    {
+        presentationmode = false;
+        freemode = true;
+        orbitmode = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        rotateSpeed += 0.001;
+    }
 
-            presentationmode = false;
-            freemode = true;
-            orbitmode = false;
-        }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        rotateSpeed -= 0.001;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        Soleil.transform.Translate(vec3(0.2, 0, 0));
+        centreSphere.x += 0.2 * 0.02;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        Soleil.transform.Translate(vec3(-0.2, 0, 0));
+        centreSphere.x += -0.2 * 0.2;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        Soleil.transform.Translate(vec3(0., 0, -0.2));
+        centreSphere.z += -0.2 * 0.2;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        Soleil.transform.Translate(vec3(0, 0, 0.2));
+        centreSphere.z += 0.2 * 0.2;
     }
     // TODO add translations
 }

@@ -3,18 +3,17 @@
 // Input vertex data, different for all executions of this shader.
 layout(location = 0) in vec3 vertices_position_modelspace;
 layout(location = 1) in vec2 uv;
-// layout(location = 2) in vec2 height;
 
 uniform mat4 modelM;
-uniform mat4 viewM;
+uniform mat4 viewM; // o_uv0=uv;
+uniform int mode;
 uniform mat4 projM;
 
-// uniform ivec2 HALF_TERRAIN_SIZE;
-uniform sampler2D heightMapTexture;
-// uniform float scale;
-// uniform float half_scale;
+uniform sampler2D HMPlan;
 
 out vec2 o_uv0;
+uniform vec3 heightBounds;
+out vec4 boundsAndheight;
 
 
 //TODO create uniform transformations matrices Model View Projection
@@ -23,14 +22,22 @@ out vec2 o_uv0;
 void main(){
 
         o_uv0=uv;
+        //mode heightmap
+        if(mode==1){
+                float height = texture(HMPlan, uv).r;
+                boundsAndheight=vec4(heightBounds,height);
+        
+                //height plus vertices.y pour gérer les offset en y
+                vec3 poswithheight=vec3(vertices_position_modelspace[0],height+vertices_position_modelspace.y,vertices_position_modelspace[2]);
+                gl_Position =   projM*viewM*modelM*vec4(poswithheight,1);
+        
+        //mode classique
+        }else{
+                gl_Position =   projM*viewM*modelM*vec4(vertices_position_modelspace,1);
+                boundsAndheight=vec4(0,0,0,0);
 
-        float height = texture(heightMapTexture, vertices_position_modelspace.xz).r /* - half_scale */;
-        vec2 pos  = (vertices_position_modelspace.xz)/* *HALF_TERRAIN_SIZE */;
-        gl_Position =  projM*viewM*modelM*vec4(pos.x, height, pos.y, 1);
-        // vec3 poswithheight=vec3(vertices_position_modelspace[0],height,vertices_position_modelspace[2]);
-        // TODO : Output position of the vertex, in clip space : MVP * position
-        // gl_Position =   projM*viewM*modelM*vec4(poswithheight,1);
-        // gl_Position =   projM*viewM*modelM*vec4(vertices_position_modelspace,1);
+        }
+      
 
 }
 

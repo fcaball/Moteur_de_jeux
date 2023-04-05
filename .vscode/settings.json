@@ -71,5 +71,7 @@
         "typeindex": "cpp",
         "valarray": "cpp",
         "variant": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/TP3",
+    "cmake.configureOnOpen": false
 }

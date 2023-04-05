@@ -264,6 +264,27 @@ GLuint loadTexture2DFromFilePath(const std::string &path)
 	return texture;
 }
 
+GLuint loadTexture2DFromFilePath(const std::string &path,int &width,int &height, int nrChannels)
+{
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 3);
+
+	if (!data)
+	{
+		stbi_image_free(data);
+		throw std::runtime_error("Failed to load texture: " + path);
+	}
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(data);
+	setDefaultTexture2DParameters(texture);
+	return texture;
+}
+
 unsigned char * getData(char * path, int &width, int &height, int &nChannels)
 {
 	return stbi_load( path, &width, &height, &nChannels, 0);

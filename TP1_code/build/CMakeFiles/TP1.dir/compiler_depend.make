@@ -316,8 +316,27 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   ../glm/gtc/matrix_transform.inl \
   ../common/shader.hpp \
   ../common/objloader.hpp \
+  ../common/vboindexer.hpp \
   ../common/texture.hpp \
-  ../common/vboindexer.hpp
+  ../TP1/ObjectPlan.hpp \
+  ../TP1/Object3D.hpp \
+  ../TP1/Transform.hpp \
+  ../TP1/ObjectLoaded.hpp \
+  /usr/include/c++/11/chrono \
+  /usr/include/c++/11/ratio \
+  /usr/include/c++/11/ctime \
+  /usr/include/c++/11/bits/parse_numbers.h \
+  /usr/include/c++/11/thread \
+  /usr/include/c++/11/bits/std_thread.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/refwrap.h \
+  /usr/include/c++/11/bits/unique_ptr.h \
+  /usr/include/c++/11/bits/this_thread_sleep.h
 
 CMakeFiles/TP1.dir/common/controls.cpp.o: ../common/controls.cpp \
   /usr/include/stdc-predef.h \
@@ -1528,12 +1547,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/unordered_map:
 
-/usr/include/c++/11/bits/refwrap.h:
-
-/usr/include/c++/11/bits/invoke.h:
-
-/usr/include/c++/11/tuple:
-
 /usr/include/c++/11/bits/std_function.h:
 
 /usr/include/c++/11/bits/stl_tempbuf.h:
@@ -1553,6 +1566,24 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/KHR/khrplatform.h:
 
 /usr/include/GL/glext.h:
+
+/usr/include/c++/11/bits/refwrap.h:
+
+/usr/include/c++/11/bits/invoke.h:
+
+/usr/include/c++/11/tuple:
+
+/usr/include/c++/11/bits/parse_numbers.h:
+
+/usr/include/c++/11/ctime:
+
+/usr/include/c++/11/thread:
+
+/usr/include/c++/11/ratio:
+
+../TP1/Transform.hpp:
+
+../TP1/ObjectPlan.hpp:
 
 ../common/vboindexer.hpp:
 
@@ -1584,6 +1615,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 ../glm/detail/type_half.hpp:
 
+../TP1/Object3D.hpp:
+
 ../glm/detail/func_packing.hpp:
 
 ../glm/packing.hpp:
@@ -1591,6 +1624,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../glm/detail/func_common.inl:
 
 ../glm/detail/func_common.hpp:
+
+/usr/include/c++/11/bits/unique_ptr.h:
 
 ../glm/common.hpp:
 
@@ -1768,6 +1803,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/endian.h:
 
+../TP1/ObjectLoaded.hpp:
+
 ../external/glew-1.13.0/include/GL/glew.h:
 
 /usr/include/x86_64-linux-gnu/bits/types.h:
@@ -1858,6 +1895,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
 
+/usr/include/c++/11/bits/std_thread.h:
+
 /usr/include/c++/11/bits/stl_iterator_base_funcs.h:
 
 /usr/include/c++/11/bits/cpp_type_traits.h:
@@ -1865,6 +1904,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/pthread.h:
 
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
+
+/usr/include/c++/11/chrono:
 
 /usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
@@ -2101,6 +2142,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/bits/streambuf_iterator.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_inline.h:
+
+/usr/include/c++/11/bits/this_thread_sleep.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
 

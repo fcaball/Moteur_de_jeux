@@ -56,6 +56,10 @@ add_definitions(
 # TP1
 add_executable(TP1
         TP1/TP1.cpp
+        TP1/Transform.hpp
+        TP1/Object3D.hpp
+        TP1/ObjectLoaded.hpp
+        TP1/ObjectPlan.hpp
 	common/shader.cpp
 	common/shader.hpp
 	common/controls.cpp

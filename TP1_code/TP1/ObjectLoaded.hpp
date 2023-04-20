@@ -8,6 +8,7 @@ class ObjectLoaded : public Object3D
 {
 private:
     /* data */
+    
 public:
     ObjectLoaded(/* args */);
     ~ObjectLoaded();
@@ -38,6 +39,9 @@ void ObjectLoaded::loadObject(const std::string &filename)
         v = (theta / M_PI);
         uvs.push_back(vec2(u, v));
     }
+
+    
+
     this->UVs=uvs;
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);

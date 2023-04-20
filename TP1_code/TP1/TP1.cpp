@@ -29,6 +29,8 @@ using namespace std;
 #include <chrono>
 #include <thread>
 
+#define GRAVITY 9.8
+
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void updateSpherePos();
@@ -96,7 +98,7 @@ float rotateSpeed = 0.05;
 int renderDistance = 20;
 
 ObjectLoaded Soleil;
-vec3 centreSphere = vec3(0., 0, 0);
+bool letsgo = false;
 
 void newPlan(Object3D &Parent, vec3 &offSetPrec)
 {
@@ -211,8 +213,6 @@ int main(void)
     std::vector<std::vector<unsigned short>> triangles;
 
     // Chargement du fichier de maillage
-    std::string filename("chair.off");
-    // loadOFF(filename, indexed_vertices, indices, triangles );
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -221,33 +221,18 @@ int main(void)
     // For speed computation
     double lastTime = glfwGetTime();
 
-    Soleil.loadObject("./newbunnyPQ10.off");
+    Soleil.loadObject("./suzanne.off");
     int ObjectState = 1;
     Soleil.loadTexture("../textures/sun.jpg");
-    Soleil.transform.Translate(vec3(0, 0, 0));
-    Soleil.transform.Scale(vec3(1, 1, 1));
+    vec3 vitesseSoleil = vec3(2, 10, 2);
+    float masseSoleil = 2.1;
+    // Soleil.transform.Translate(vec3(0.5, 0, 0.5));
+    // Soleil.transform.Rotation(vec3(1, 0, 0), M_PI + M_PI / 6);
 
-    ObjectLoaded Terre;
-    Terre.loadObject("./sphere.off");
-    Terre.loadTexture("../textures/earth.jpg");
+    // Soleil.transform.Scale(vec3(0.5, 0.5, 0.5));
 
-    float rayonTerre = 12;
-    float rayonLune = 5;
-
-    // Soleil.addChild(Terre);
-    Terre.transform.Scale(vec3(0.2, 0.2, 0.2));
-    Terre.transform.Translate(vec3(rayonTerre, 0., 0.));
-    // Terre.transform.Rotation(vec3(0, 0, 1), glm::radians(23.44f));
-
-    ObjectLoaded Lune;
-    Lune.loadObject("./sphere.off");
-    Lune.loadTexture("../textures/moon.jpg");
-
-    Terre.addChild(&Lune);
-    Lune.transform.Scale(vec3(0.5, 0.5, 0.5));
-    Lune.transform.Translate(vec3(rayonLune, 0, 0));
-    ObjectPlan plan2(resolutionX, resolutionY, 4, 4, 2, 2, true, "../textures/heightMap2.jpeg",1);
-    plan2.loadTexture("../textures/snowrocks.png");
+    ObjectPlan plan2(resolutionX, resolutionY, 12, 12, 6, 6, false, "../textures/Heightmap_Mountain.png", 1);
+    plan2.loadTexture("../textures/rock.png");
 
     planHeightMap = &plan2;
 
@@ -264,6 +249,8 @@ int main(void)
         perror("erreur creation thread");
         exit(1);
     }
+    bool test = false;
+    vec3 centre = vec3(1, 1, 1);
 
     do
     {
@@ -315,93 +302,27 @@ int main(void)
         glUniformMatrix4fv(glGetUniformLocation(programID, "viewM"), 1, GL_FALSE, &viewMatrix[0][0]);
         glUniformMatrix4fv(glGetUniformLocation(programID, "projM"), 1, GL_FALSE, &projMatrix[0][0]);
 
-        // Terre.transform.Translate(vec3(-rayonTerre, 0, 0));
-        // Terre.transform.Rotation(vec3(0, 1, 0), glm::radians(2.0f));
-        // Terre.transform.Translate(vec3(rayonTerre, 0, 0));
-
-        // Lune.transform.Translate(vec3(-rayonLune, 0, 0));
-        // Lune.transform.Rotation(vec3(0, 1, 0), glm::radians(2.0f));
-        // Lune.transform.Translate(vec3(rayonLune, 0, 0));
-
-        // SPHÈRE QUI SE BALADE SUR LE TERRAIN
-        /* vector<unsigned short> indices = plan2.getIndices();
-        vector<vec3> vertices = plan2.getVertices();
-        vector<unsigned short> goodTri;
-
-        float Goodalpha1=0;
-        float Goodalpha2=0;
-        float Goodalpha0=0;
-
-        for (size_t i = 0; i < indices.size(); i += 6)
+        // MOUVEMENT
+        if (letsgo)
         {
-            if (vertices[indices[i]].x > centreSphere.x && vertices[indices[i]].z > centreSphere.z ||
-                vertices[indices[i + 1]].x > centreSphere.x && vertices[indices[i + 1]].z > centreSphere.z ||
-                vertices[indices[i + 2]].x > centreSphere.x && vertices[indices[i + 2]].z > centreSphere.z)
+
+            vec3 GravityForce = vec3(0, -(masseSoleil * GRAVITY), 0);
+            vec3 acceleration = GravityForce /* /masseSoleil */;
+            vitesseSoleil += acceleration * deltaTime;
+            Soleil.transform.Translate(vitesseSoleil * deltaTime);
+            centre += vitesseSoleil * deltaTime;
+            cout << centre.y << endl;
+            if (centre.y < 1)
             {
-                vec3 vect1 = vertices[indices[i + 1]] - vertices[indices[i]];
-                vec3 vect2 = vertices[indices[i + 2]] - vertices[indices[i]];
-                vec3 vect3 = centreSphere - vertices[indices[i]];
-
-                float dot11 = glm::dot(vect1, vect1);
-                float dot12 = glm::dot(vect1, vect2);
-                float dot22 = glm::dot(vect2, vect2);
-                float dot31 = glm::dot(vect3, vect1);
-                float dot32 = glm::dot(vect3, vect2);
-                float denom = dot11 * dot22 - dot12 * dot12;
-                float alpha1 = (float)(dot22 * dot31 - dot12 * dot32) / (float)denom;
-                float alpha2 = (float)(dot11 * dot32 - dot12 * dot31) / (float)denom;
-                float alpha0 = 1.0f - alpha1 - alpha2;
-                if (alpha0 < 1 && alpha1 < 1 && alpha2 < 1 && alpha0 > 0 && alpha1 > 0 && alpha2 > 0)
-                {
-                    goodTri.push_back(indices[i]);
-                    goodTri.push_back(indices[i + 1]);
-                    goodTri.push_back(indices[i + 2]);
-                    Goodalpha1 = alpha1;
-                    Goodalpha2 = alpha2;
-                    Goodalpha0 = alpha0;
-                }
-                else
-                {
-                    goodTri.push_back(indices[i + 3]);
-                    goodTri.push_back(indices[i + 3 + 1]);
-                    goodTri.push_back(indices[i + 3 + 2]);
-                    vec3 vect1 = vertices[indices[i+3 + 1]] - vertices[indices[i+3]];
-                    vec3 vect2 = vertices[indices[i +3+ 2]] - vertices[indices[i+3]];
-                    vec3 vect3 = centreSphere - vertices[indices[i+3]];
-
-                    float dot11 = glm::dot(vect1, vect1);
-                    float dot12 = glm::dot(vect1, vect2);
-                    float dot22 = glm::dot(vect2, vect2);
-                    float dot31 = glm::dot(vect3, vect1);
-                    float dot32 = glm::dot(vect3, vect2);
-                    float denom = dot11 * dot22 - dot12 * dot12;
-                    Goodalpha1 =  (float)(dot22 * dot31 - dot12 * dot32) / (float)denom;
-                    Goodalpha2 =  (float)(dot11 * dot32 - dot12 * dot31) / (float)denom;
-                    Goodalpha0 =  1.0f - alpha1 - alpha2;
-                }
+                // vitesseSoleil=vec3(0.,0.,0.);
+                vitesseSoleil *= -1;
+                vitesseSoleil.x *= -1;
             }
         }
 
-        vec3 n = cross(centreSphere - vertices[goodTri[1]], centreSphere - vertices[goodTri[2]]);
-        n = normalize(n);
-        float normecentre_centreprojete = dot((centreSphere - vertices[goodTri[0]]), n) / sqrt(n.x * n.x + n.y * n.y + n.z * n.z);
-        vec3 CentreProjete = centreSphere - n * normecentre_centreprojete;
-        // cout<<CentreProjete.x<<" "<<CentreProjete.y<<" "<<CentreProjete.z<<endl;
-
-        cout << Goodalpha0 << " " << Goodalpha1 << " " << Goodalpha2 << endl;
-        
-        vector<vec2> uvs = plan2.getUVs();
-        vec2 UV = vec2(Goodalpha0 * uvs[goodTri[0]] + Goodalpha1 * uvs[goodTri[1]] + Goodalpha2 * uvs[goodTri[2]]);
-        int w, h, c;
-        unsigned char *HM = getData("../textures/rock.png", w, h, c);
-        float val = (float)HM[((int)UV.x * w + (int)UV.y)] / 255.0;
-
-        Soleil.transform.Translate(vec3(0, val * (1 / 0.2), 0));
- */
         // newPlan(planInfini, currentOffSet);
 
-
-        //CHANGEMENT DE RESOLUTION SELON LA DISTANCE AVEC PLUSIEURS .off
+        // CHANGEMENT DE RESOLUTION SELON LA DISTANCE AVEC PLUSIEURS .off
         if (cameraFree_position.z > 20 && ObjectState != 3)
         {
             Soleil.loadObject("./newbunnyPQ3.off");
@@ -411,15 +332,108 @@ int main(void)
         {
             Soleil.loadObject("./newbunnyPQ5.off");
             ObjectState = 2;
-        }else if (cameraFree_position.z < 10 && ObjectState != 0){
-             Soleil.loadObject("./newbunnyPQ10.off");
+        }
+        else if (cameraFree_position.z < 10 && ObjectState != 0)
+        {
+            Soleil.loadObject("./newbunnyPQ10.off");
             ObjectState = 0;
         }
 
         planInfini.updateMeAndChilds();
         planInfini.draw(programID);
 
-        //Soleil.transform.Translate(vec3(0, -val * (1 / 0.2), 0));
+        vector<vec3> verticesPlan = plan2.getVertices();
+        vector<unsigned short> indicesPlan = plan2.getIndices();
+
+        vector<vec2> uvsPlan = plan2.getUVs();
+
+        // BALADEMENT SUR LA SPHÈRE
+        //  if (!test)
+        //  {
+
+        //     cout << "centre " << centre.x << " " << centre.y << " " << centre.z << endl;
+        //     for (size_t i = 0; i < indicesPlan.size(); i += 3)
+        //     {
+        //         cout << indicesPlan[i] << " ; " << indicesPlan[i + 1] << " ; " << indicesPlan[i + 2] << endl;
+        //     }
+        //     test = true;
+
+        //     cout << endl;
+
+        //     int debIndice;
+        //     vector<unsigned short> carrétrouvé;
+        //     for (size_t i = 0; i < indicesPlan.size(); i += 6)
+        //     {
+        //         if (centre.z > verticesPlan[indicesPlan[i]].z && centre.z < verticesPlan[indicesPlan[i + 1]].z && centre.x < verticesPlan[indicesPlan[i]].x && centre.x > verticesPlan[indicesPlan[i + 2]].x /*  && verticesPlan[indicesPlan[i + 1]].x > centre.x && verticesPlan[indicesPlan[i]].x < centre.x */)
+        //         {
+        //             cout << "carré trouvé" << endl;
+        //             cout << indicesPlan[i] << " ; " << indicesPlan[i + 1] << " ; " << indicesPlan[i + 2] << " ; " << indicesPlan[i + 3] << endl;
+        //             for (size_t k = 0; k < 6; k++)
+        //             {
+        //                 carrétrouvé.push_back(indicesPlan[i + k]);
+        //             }
+        //         }
+        //     }
+        //     vector<unsigned short> traingletrouvé;
+        //     float u;
+        //     float v;
+        //     float w;
+
+        //     if (carrétrouvé.size() == 6)
+        //     {
+        //         for (size_t k = 0; k < 2; k++)
+        //         {
+        //             vec3 A = verticesPlan[carrétrouvé[0 + k * 3]];
+        //             vec3 B = verticesPlan[carrétrouvé[2 + k * 3]];
+        //             vec3 C = verticesPlan[carrétrouvé[1 + k * 3]];
+
+        //             glm::vec3 AB = B - A;
+        //             glm::vec3 AC = C - A;
+        //             glm::vec3 N = glm::cross(AB, AC);
+
+        //             float D = -(N.x * A.x + N.y * A.y + N.z * A.z);
+        //             float t = -(N.x * centre.x + N.y * centre.y + N.z * centre.z + D) / glm::dot(N, N);
+        //             glm::vec3 Q = centre + t * N;
+        //             cout << "Pproj :" << Q.x << " " << Q.y << " " << Q.z << endl;
+
+        //             glm::vec3 v0 = C - A;
+        //             glm::vec3 v1 = B - A;
+        //             glm::vec3 v2 = Q - A;
+
+        //             float dot00 = glm::dot(v0, v0);
+        //             float dot01 = glm::dot(v0, v1);
+        //             float dot02 = glm::dot(v0, v2);
+        //             float dot11 = glm::dot(v1, v1);
+        //             float dot12 = glm::dot(v1, v2);
+
+        //             float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+        //             u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+        //             v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+        //             w = 1.0f - u - v;
+
+        //             if ((u >= 0) && (v >= 0) && (u + v < 1))
+        //             {
+        //                 traingletrouvé.push_back(carrétrouvé[0 + k * 3]);
+        //                 traingletrouvé.push_back(carrétrouvé[1 + k * 3]);
+        //                 traingletrouvé.push_back(carrétrouvé[2 + k * 3]);
+        //             }
+        //         }
+        //         cout << traingletrouvé[0] << " " << traingletrouvé[1] << " " << traingletrouvé[2] << endl;
+        //     }
+
+        //     if (traingletrouvé.size() == 3)
+        //     {
+        //         float uA=uvsPlan[traingletrouvé[0]].x;
+        //         float uB=uvsPlan[traingletrouvé[2]].x;
+        //         float uC=uvsPlan[traingletrouvé[1]].x;
+        //         float vA=uvsPlan[traingletrouvé[0]].y;
+        //         float vB=uvsPlan[traingletrouvé[2]].y;
+        //         float vC=uvsPlan[traingletrouvé[1]].y;
+        //         float uP = u * uA + v * uB + w * uC;
+        //         float vP = u * vA + v * vB + w * vC;
+        //         cout<<"uP :"<<uP<< " ; "<<"vP :"<<vP<<endl;
+        //     }
+        // }
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -545,25 +559,30 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
     {
         Soleil.transform.Translate(vec3(0.2, 0, 0));
-        centreSphere.x += 0.2 * 0.02;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
     {
         Soleil.transform.Translate(vec3(-0.2, 0, 0));
-        centreSphere.x += -0.2 * 0.2;
     }
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
         Soleil.transform.Translate(vec3(0., 0, -0.2));
-        centreSphere.z += -0.2 * 0.2;
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
         Soleil.transform.Translate(vec3(0, 0, 0.2));
-        centreSphere.z += 0.2 * 0.2;
     }
-    // TODO add translations
+
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+    {
+        letsgo = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+    {
+        letsgo = false;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

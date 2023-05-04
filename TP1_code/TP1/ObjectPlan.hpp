@@ -15,24 +15,36 @@ protected:
     float offsetZ;
     float offsetY;
     bool HeightMap;
-    string path;
+    string HeightMapPath;
+    string texturePath;
 
 public:
     float offSetZ;
     ObjectPlan(/* args */);
-    ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, bool HeightMap, string path = "", float offsetY = 0);
+    ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ,string pathText, bool HeightMap,  string HeightMapPath = "",float offsetY = 0);
 
     ~ObjectPlan();
-    void makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY, bool HeightMap, string path = "");
+    void makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY, string pathText, bool HeightMap,string HeightMapPath = "");
     void changeResolution(int newResX, int newResY);
     void draw(GLuint programID);
+    float getOffsetZ();
+    void setOffsetZ(float z);
+    float getOffsetY();
+    float getOffsetX();
+    int getsizeY();
+    int getsizeX();
+    int getnX();
+    int getnY();
+    bool getHeightMap();
+    string getHeightMapPath();
+    string getTexturePath();
 };
 
 ObjectPlan::ObjectPlan(/* args */)
 {
 }
 
-ObjectPlan::ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, bool HeightMap, string path, float offsetY)
+ObjectPlan::ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ,string pathText, bool HeightMap, string HeightMapPath,  float offsetY)
 {
     this->nX = nX;
     this->nY = nY;
@@ -42,18 +54,28 @@ ObjectPlan::ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, floa
     this->offsetY = offsetY;
     this->offsetZ = offsetZ;
     this->HeightMap = HeightMap;
-    this->path = path;
+    this->HeightMapPath = HeightMapPath;
+    this->texturePath=pathText;
 
-    makePlan(nX, nY, sizeX, sizeY, offsetX, offsetZ, offsetY, HeightMap, path);
-}
+    makePlan(nX, nY, sizeX, sizeY, offsetX, offsetZ, offsetY,pathText, HeightMap,  HeightMapPath);
+}   
 
 ObjectPlan::~ObjectPlan()
 {
 }
 
-void ObjectPlan::makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY, bool HeightMap, string path)
+void ObjectPlan::makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY,string pathText, bool HeightMap,  string HeightMapPath)
 {
-    this->offSetZ = offsetZ;
+     this->nX = nX;
+    this->nY = nY;
+    this->sizeX = sizeX;
+    this->sizeY = sizeY;
+    this->offsetX = offsetX;
+    this->offsetY = offsetY;
+    this->offsetZ = offsetZ;
+    this->HeightMap = HeightMap;
+    this->HeightMapPath = HeightMapPath;
+    this->texturePath=pathText;
     this->vertices.clear();
     this->indices.clear();
 
@@ -114,8 +136,11 @@ void ObjectPlan::makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, f
     if (HeightMap)
     {
         this->mode = 1;
-        this->hmap = loadTexture2DFromFilePath(this->path);
+        this->hmap = loadTexture2DFromFilePath(this->HeightMapPath);
     }
+    // cout<<this->texturePath<<endl;
+    // loadTexture(this->texturePath);
+
 
     // Generate a buffer for the this->indices as well
 }
@@ -124,7 +149,7 @@ void ObjectPlan::changeResolution(int newResX, int newResY)
 {
     this->nX = newResX;
     this->nY = newResY;
-    makePlan(this->nX, this->nY, this->sizeX, this->sizeY, this->offsetX, this->offSetZ, this->offsetY, this->HeightMap, this->path);
+    makePlan(this->nX, this->nY, this->sizeX, this->sizeY, this->offsetX, this->offSetZ, this->offsetY, this->texturePath,this->HeightMap, this->HeightMapPath);
 }
 
 void ObjectPlan::draw(GLuint programID)
@@ -137,3 +162,42 @@ void ObjectPlan::draw(GLuint programID)
     }
     Object3D::draw(programID);
 }
+
+float ObjectPlan::getOffsetZ()
+{
+    return this->offsetZ;
+}
+
+
+    float ObjectPlan::getOffsetY(){
+        return this->offsetY;
+    }
+    float ObjectPlan::getOffsetX(){
+        return this->offsetX;
+    }
+    int ObjectPlan::getsizeY(){
+        return this->sizeY;
+    }
+    int ObjectPlan::getsizeX(){
+        return this->sizeX;
+    }
+    int ObjectPlan::getnX(){
+        return this->nX;
+    }
+    int ObjectPlan::getnY(){
+        return this->nY;
+    }
+    bool ObjectPlan::getHeightMap(){
+        return this->HeightMap;
+    }
+    string ObjectPlan::getHeightMapPath(){
+        return this->HeightMapPath;
+    }
+    string ObjectPlan::getTexturePath(){
+        return this->texturePath;
+    }
+    void ObjectPlan::setOffsetZ(float z){
+        this->offsetZ = z ;
+    }
+
+    

@@ -70,7 +70,15 @@
         "cfenv": "cpp",
         "typeindex": "cpp",
         "valarray": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "any": "cpp",
+        "codecvt": "cpp",
+        "coroutine": "cpp",
+        "unordered_set": "cpp",
+        "source_location": "cpp",
+        "future": "cpp",
+        "forward_list": "cpp",
+        "regex": "cpp"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/TP3",
     "cmake.configureOnOpen": false

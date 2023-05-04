@@ -321,6 +321,7 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   ../TP1/ObjectPlan.hpp \
   ../TP1/Object3D.hpp \
   ../TP1/Transform.hpp \
+  ../TP1/Vehicule.hpp \
   ../TP1/ObjectLoaded.hpp \
   /usr/include/c++/11/chrono \
   /usr/include/c++/11/ratio \
@@ -857,7 +858,70 @@ CMakeFiles/TP1.dir/common/objloader.cpp.o: ../common/objloader.cpp \
   ../glm/integer.hpp \
   ../glm/detail/func_integer.hpp \
   ../glm/detail/func_integer.inl \
-  ../common/objloader.hpp
+  ../common/objloader.hpp \
+  ../external/assimp/include/assimp/Importer.hpp \
+  ../external/assimp/include/assimp/types.h \
+  ../external/assimp/include/assimp/defs.h \
+  ../external/assimp/include/assimp/config.h \
+  ../external/assimp/include/assimp/vector2.h \
+  ../external/assimp/include/assimp/vector3.h \
+  ../external/assimp/include/assimp/color4.h \
+  ../external/assimp/include/assimp/matrix3x3.h \
+  ../external/assimp/include/assimp/matrix4x4.h \
+  ../external/assimp/include/assimp/quaternion.h \
+  ../external/assimp/contrib/utf8cpp/source/utf8.h \
+  ../external/assimp/contrib/utf8cpp/source/utf8/checked.h \
+  ../external/assimp/contrib/utf8cpp/source/utf8/core.h \
+  /usr/include/c++/11/iterator \
+  /usr/include/c++/11/bits/stream_iterator.h \
+  ../external/assimp/contrib/utf8cpp/source/utf8/cpp11.h \
+  ../external/assimp/contrib/utf8cpp/source/utf8/checked.h \
+  ../external/assimp/contrib/utf8cpp/source/utf8/unchecked.h \
+  ../external/assimp/include/assimp/vector2.inl \
+  ../external/assimp/include/assimp/vector3.inl \
+  ../external/assimp/include/assimp/color4.inl \
+  ../external/assimp/include/assimp/matrix3x3.inl \
+  /usr/include/c++/11/algorithm \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/bits/stl_algo.h \
+  /usr/include/c++/11/bits/algorithmfwd.h \
+  /usr/include/c++/11/bits/stl_heap.h \
+  /usr/include/c++/11/bits/stl_tempbuf.h \
+  /usr/include/c++/11/bits/uniform_int_dist.h \
+  /usr/include/c++/11/pstl/glue_algorithm_defs.h \
+  /usr/include/c++/11/functional \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/refwrap.h \
+  /usr/include/c++/11/bits/std_function.h \
+  /usr/include/c++/11/unordered_map \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/node_handle.h \
+  /usr/include/c++/11/bits/unordered_map.h \
+  /usr/include/c++/11/bits/erase_if.h \
+  /usr/include/c++/11/pstl/execution_defs.h \
+  ../external/assimp/include/assimp/matrix4x4.inl \
+  ../external/assimp/include/assimp/MathFunctions.h \
+  ../external/assimp/include/assimp/quaternion.inl \
+  ../external/assimp/include/assimp/scene.h \
+  ../external/assimp/include/assimp/texture.h \
+  ../external/assimp/include/assimp/Compiler/pushpack1.h \
+  ../external/assimp/include/assimp/Compiler/poppack1.h \
+  ../external/assimp/include/assimp/mesh.h \
+  ../external/assimp/include/assimp/aabb.h \
+  ../external/assimp/include/assimp/light.h \
+  ../external/assimp/include/assimp/camera.h \
+  ../external/assimp/include/assimp/material.h \
+  ../external/assimp/include/assimp/material.inl \
+  ../external/assimp/include/assimp/anim.h \
+  ../external/assimp/include/assimp/metadata.h \
+  ../external/assimp/include/assimp/postprocess.h
 
 CMakeFiles/TP1.dir/common/shader.cpp.o: ../common/shader.cpp \
   /usr/include/stdc-predef.h \
@@ -1539,6 +1603,28 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/sstream:
 
+../external/assimp/include/assimp/postprocess.h:
+
+../external/assimp/include/assimp/material.inl:
+
+../external/assimp/include/assimp/material.h:
+
+../external/assimp/include/assimp/light.h:
+
+../external/assimp/include/assimp/aabb.h:
+
+../external/assimp/include/assimp/mesh.h:
+
+../external/assimp/include/assimp/Compiler/pushpack1.h:
+
+../external/assimp/include/assimp/texture.h:
+
+../external/assimp/include/assimp/quaternion.inl:
+
+../external/assimp/include/assimp/MathFunctions.h:
+
+../external/assimp/include/assimp/matrix4x4.inl:
+
 /usr/include/c++/11/bits/unordered_map.h:
 
 /usr/include/c++/11/bits/hashtable_policy.h:
@@ -1559,9 +1645,27 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/algorithm:
 
+../external/assimp/include/assimp/color4.inl:
+
+../external/assimp/include/assimp/vector2.inl:
+
+../external/assimp/contrib/utf8cpp/source/utf8/unchecked.h:
+
+../external/assimp/contrib/utf8cpp/source/utf8/core.h:
+
+../external/assimp/contrib/utf8cpp/source/utf8.h:
+
+../external/assimp/include/assimp/vector2.h:
+
+../external/assimp/include/assimp/config.h:
+
+../external/assimp/include/assimp/defs.h:
+
 /usr/include/c++/11/fstream:
 
 ../common/objloader.cpp:
+
+../external/assimp/include/assimp/Importer.hpp:
 
 /usr/include/KHR/khrplatform.h:
 
@@ -1580,6 +1684,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/thread:
 
 /usr/include/c++/11/ratio:
+
+../TP1/Vehicule.hpp:
 
 ../TP1/Transform.hpp:
 
@@ -1615,9 +1721,13 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 ../glm/detail/type_half.hpp:
 
+/usr/include/c++/11/bits/stream_iterator.h:
+
 ../TP1/Object3D.hpp:
 
 ../glm/detail/func_packing.hpp:
+
+../external/assimp/include/assimp/scene.h:
 
 ../glm/packing.hpp:
 
@@ -1681,6 +1791,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/locale.h:
 
+../external/assimp/include/assimp/Compiler/poppack1.h:
+
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 
 /usr/include/x86_64-linux-gnu/sys/select.h:
@@ -1708,6 +1820,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/cstdint:
 
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
+
+../external/assimp/include/assimp/metadata.h:
 
 /usr/include/c++/11/tr1/special_function_util.h:
 
@@ -1781,9 +1895,15 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/tr1/poly_laguerre.tcc:
 
+../external/assimp/include/assimp/vector3.inl:
+
 /usr/include/assert.h:
 
+../external/assimp/include/assimp/anim.h:
+
 /usr/include/c++/11/stdlib.h:
+
+/usr/include/c++/11/iterator:
 
 /usr/include/c++/11/bits/range_access.h:
 
@@ -1871,6 +1991,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 ../common/shader.cpp:
 
+../external/assimp/include/assimp/matrix3x3.inl:
+
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
 ../glm/detail/type_vec4.inl:
@@ -1878,6 +2000,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/alloca.h:
 
 ../glm/mat2x2.hpp:
+
+../external/assimp/include/assimp/matrix3x3.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
@@ -1997,6 +2121,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/ios_base.h:
 
+../external/assimp/include/assimp/color4.h:
+
 /usr/include/x86_64-linux-gnu/bits/fp-logb.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
@@ -2024,6 +2150,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 
 /usr/include/x86_64-linux-gnu/bits/timex.h:
+
+../external/assimp/contrib/utf8cpp/source/utf8/checked.h:
 
 /usr/include/c++/11/bits/stl_bvector.h:
 
@@ -2059,6 +2187,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 ../glm/detail/type_mat2x2.hpp:
 
+../external/assimp/include/assimp/types.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
 
 /usr/include/c++/11/cerrno:
@@ -2091,6 +2221,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/basic_string.tcc:
 
+../external/assimp/contrib/utf8cpp/source/utf8/cpp11.h:
+
 ../common/controls.cpp:
 
 /usr/include/c++/11/bits/locale_classes.tcc:
@@ -2121,6 +2253,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/streambuf.tcc:
 
+../external/assimp/include/assimp/quaternion.h:
+
 /usr/include/c++/11/tr1/bessel_function.tcc:
 
 /usr/include/c++/11/bits/uniform_int_dist.h:
@@ -2149,6 +2283,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 /usr/include/c++/11/bits/locale_facets.tcc:
 
+../external/assimp/include/assimp/camera.h:
+
 /usr/include/c++/11/bits/enable_special_members.h:
 
 /usr/include/c++/11/bits/codecvt.h:
@@ -2164,6 +2300,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../glm/gtc/matrix_transform.hpp:
 
 /usr/include/limits.h:
+
+../external/assimp/include/assimp/matrix4x4.h:
 
 /usr/include/linux/limits.h:
 
@@ -2248,6 +2386,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/lib/gcc/x86_64-linux-gnu/11/include/emmintrin.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/xmmintrin.h:
+
+../external/assimp/include/assimp/vector3.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/mmintrin.h:
 

@@ -176,6 +176,10 @@ TP1: /usr/lib/x86_64-linux-gnu/libGL.so
 TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: external/glfw-3.1.2/src/libglfw3.a
 TP1: external/libGLEW_1130.a
+TP1: /usr/lib/x86_64-linux-gnu/libGL.so
+TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
+TP1: external/glfw-3.1.2/src/libglfw3.a
+TP1: external/libGLEW_1130.a
 TP1: /usr/lib/x86_64-linux-gnu/librt.a
 TP1: /usr/lib/x86_64-linux-gnu/libm.so
 TP1: /usr/lib/x86_64-linux-gnu/libX11.so
@@ -192,6 +196,8 @@ TP1: /usr/lib/x86_64-linux-gnu/libXinerama.so
 TP1: /usr/lib/x86_64-linux-gnu/libXi.so
 TP1: /usr/lib/x86_64-linux-gnu/libXxf86vm.so
 TP1: /usr/lib/x86_64-linux-gnu/libXcursor.so
+TP1: /usr/lib/x86_64-linux-gnu/libGL.so
+TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: /usr/lib/x86_64-linux-gnu/libGL.so
 TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: CMakeFiles/TP1.dir/link.txt

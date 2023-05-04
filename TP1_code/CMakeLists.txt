@@ -60,6 +60,7 @@ add_executable(TP1
         TP1/Object3D.hpp
         TP1/ObjectLoaded.hpp
         TP1/ObjectPlan.hpp
+        TP1/Vehicule.hpp
 	common/shader.cpp
 	common/shader.hpp
 	common/controls.cpp
@@ -97,3 +98,8 @@ elseif (${CMAKE_GENERATOR} MATCHES "Xcode" )
 
 endif (NOT ${CMAKE_GENERATOR} MATCHES "Xcode" )
 
+set(ASSIMP_DIR ${CMAKE_SOURCE_DIR}/external/assimp)
+include_directories(${ASSIMP_DIR}/include)
+link_directories(${ASSIMP_DIR}/lib)
+target_link_libraries(TP1 ${ALL_LIBS} assimp)
+find_package(assimp REQUIRED)

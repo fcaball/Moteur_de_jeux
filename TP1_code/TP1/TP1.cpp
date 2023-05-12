@@ -25,6 +25,7 @@ using namespace std;
 #include <common/texture.hpp>
 #include <TP1/ObjectPlan.hpp>
 #include <TP1/Vehicule.hpp>
+#include <TP1/Camera.hpp>
 #include <pthread.h>
 #include <chrono>
 #include <thread>
@@ -36,25 +37,17 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void updateSpherePos();
 void turnPneu(Object3D &roueDirectionnelleDroite, Object3D &roueDirectionnelleGauche, bool reInit);
 void checkFreinAMain(Vehicule &Bolide, ObjectPlan &planInfini, ObjectPlan &lastChild);
-
+void InfiniPlan(ObjectPlan &planInfini);
+void UpdateObjects(ObjectPlan &plan);
+void crash(Object3D &CivilCar, Object3D &voit);
+void desseleration(Vehicule &car);
+void RandomAcceleration(Vehicule &car);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-glm::vec3 cameraFree_position = glm::vec3(0.0f, 2.0f, 5.0f);
-glm::vec3 cameraFree_target = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraFree_direction = glm::normalize(cameraFree_position - cameraFree_target); // /!\pointe dans la direction inverse
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraFree_right = glm::normalize(glm::cross(up, cameraFree_direction));
-glm::vec3 cameraFree_up = glm::cross(cameraFree_direction, cameraFree_right);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-
-glm::vec3 cameraOrbit_position = glm::vec3(0.0f, .0f, 3.0f);
-glm::vec3 cameraOrbit_target = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraOrbit_direction = glm::normalize(cameraOrbit_position - cameraOrbit_target); // /!\pointe dans la direction inverse
-glm::vec3 cameraOrbit_right = glm::normalize(glm::cross(up, cameraOrbit_direction));
-glm::vec3 cameraOrbit_up = glm::cross(cameraOrbit_direction, cameraFree_right);
+Camera *Cam;
 
 // timing
 float deltaTime = 0.0f; // time between current frame and last frame
@@ -73,8 +66,10 @@ float lastY = 600.0 / 2.0;
 float fov = 45.0f;
 
 bool orbitmode = false;
-bool presentationmode = true;
-bool freemode = false;
+bool presentationmode = false;
+bool freemode = true;
+
+bool play = false;
 
 /*******************************************************************************/
 
@@ -88,22 +83,11 @@ GLuint elementbuffer;
 GLuint uv;
 GLuint hmap;
 
-int resolutionX = 2;
-int sizeX = 1;
-int resolutionY = 2;
-int sizeY = 1;
-
 float vitesse = 0.05;
 float rotateSpeed = 0.05;
 
-int renderDistance = 20;
-
 Vehicule Bolide;
-ObjectPlan plan1;
-ObjectPlan plan2;
-ObjectPlan plan3;
-ObjectPlan plan4;
-ObjectPlan plan5;
+
 ObjectPlan planInfini;
 int planToMove = 1;
 
@@ -123,6 +107,7 @@ void *updateFPS(void *params)
 
 int main(void)
 {
+    vector<vec3> BE;
     // Initialise GLFW
     if (!glfwInit())
     {
@@ -138,7 +123,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Open a window and create its OpenGL context
-    window = glfwCreateWindow(1024, 768, "TP1 - GLFW", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "Projet", NULL, NULL);
     if (window == NULL)
     {
         fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
@@ -205,9 +190,19 @@ int main(void)
 
     // For speed computation
     double lastTime = glfwGetTime();
+    pthread_t thread;
 
+    if (pthread_create(&thread, NULL, updateFPS, (void *)0) != 0)
+    {
+        perror("erreur creation thread");
+        exit(1);
+    }
+
+    Cam = new Camera(vec3(0.0f, 2.0f, 5.0f), vec3(), vec3(0, 1, 0), vec3(0, 0, -1));
     int ObjectState = 1;
+
     Bolide.transform.Scale(vec3(1, 1, 1));
+    Bolide.transform.Translate(vec3(2, 0, 0));
     Object3D roueDirectionnelleDroite;
     Object3D roueDirectionnelleGauche;
     roueDirectionnelleDroite.transform.Translate(vec3(1, 0, -2));
@@ -218,14 +213,14 @@ int main(void)
     ObjectLoaded pneuAvantGauche;
     pneuAvantGauche.loadObject("./pneu.obj", 1);
     pneuAvantGauche.loadTexture("../textures/textPneu.jpg");
-    pneuAvantGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
+    // pneuAvantGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuAvantGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
     roueDirectionnelleGauche.addChild(&pneuAvantGauche);
 
     ObjectLoaded pneuAvantDroit;
     pneuAvantDroit.loadObject("./pneu.obj", 1);
     pneuAvantDroit.loadTexture("../textures/textPneu.jpg");
-    pneuAvantDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
+    // pneuAvantDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuAvantDroit.transform.Scale(vec3(0.5, 0.5, 0.5));
     roueDirectionnelleDroite.addChild(&pneuAvantDroit);
 
@@ -233,7 +228,7 @@ int main(void)
     pneuArriereGauche.loadObject("./pneu.obj", 1);
     pneuArriereGauche.loadTexture("../textures/textPneu.jpg");
     pneuArriereGauche.transform.Translate(vec3(-1, 0, 0));
-    pneuArriereGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
+    // pneuArriereGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuArriereGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
     Bolide.addChild(&pneuArriereGauche);
 
@@ -241,42 +236,73 @@ int main(void)
     pneuArriereDroit.loadObject("./pneu.obj", 1);
     pneuArriereDroit.loadTexture("../textures/textPneu.jpg");
     pneuArriereDroit.transform.Translate(vec3(1, 0, 0));
-    pneuArriereDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
+    // pneuArriereDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuArriereDroit.transform.Scale(vec3(0.5, 0.5, 0.5));
     Bolide.addChild(&pneuArriereDroit);
 
     float masseBolide = 2.1;
 
-    plan1.makePlan(resolutionX, resolutionY, 12, 12, 6, 6, 1, "../textures/moon.jpg", false, "../textures/Heightmap_Mountain.png");
-    plan1.loadTexture("../textures/moon.jpg");
-    plan2.makePlan(resolutionX, resolutionY, 12, 12, 6, 18, 1, "../textures/moon.jpg", false, "../textures/Heightmap_Mountain.png");
-    plan2.loadTexture("../textures/moon.jpg");
-    plan3.makePlan(resolutionX, resolutionY, 12, 12, 6, 30, 1, "../textures/moon.jpg", false, "../textures/Heightmap_Mountain.png");
-    plan3.loadTexture("../textures/moon.jpg");
-    plan4.makePlan(resolutionX, resolutionY, 12, 12, 6, 42, 1, "../textures/moon.jpg", false, "../textures/Heightmap_Mountain.png");
-    plan4.loadTexture("../textures/moon.jpg");
-    plan5.makePlan(resolutionX, resolutionY, 12, 12, 6, 54, 1, "../textures/moon.jpg", false, "../textures/Heightmap_Mountain.png");
-    plan5.loadTexture("../textures/moon.jpg");
+    ObjectPlan plan1;
+    ObjectPlan plan2;
+    ObjectPlan plan3;
+    ObjectPlan plan4;
+    ObjectPlan plan5;
+    ObjectPlan plan6;
+    int resolutionX = 2;
+    int resolutionY = 2;
+    int sizeX = 16;
+    int sizeY = 16;
+    plan1.makePlan(resolutionX, resolutionY, sizeX, sizeY, (float)(sizeX / 2), 0, 1, false, "../textures/Heightmap_Mountain.png");
+    plan1.loadTexture("../textures/Route.png");
+    plan1.transform.Translate(vec3(0, 0, -(float)(sizeY / 2)));
+    plan2.makePlan(resolutionX, resolutionY, sizeX, sizeY, (float)(sizeX / 2), 0, 1, false, "../textures/Heightmap_Mountain.png");
+    plan2.loadTexture("../textures/Route.png");
+    plan2.transform.Translate(vec3(0, 0, -(float)((sizeY / 2) + sizeY)));
+    plan3.makePlan(resolutionX, resolutionY, sizeX, sizeY, (float)(sizeX / 2), 0, 1, false, "../textures/Heightmap_Mountain.png");
+    plan3.loadTexture("../textures/Route.png");
+    plan3.transform.Translate(vec3(0, 0, -(float)((sizeY / 2) + 2 * sizeY)));
+    plan4.makePlan(resolutionX, resolutionY, sizeX, sizeY, (float)(sizeX / 2), 0, 1, false, "../textures/Heightmap_Mountain.png");
+    plan4.loadTexture("../textures/Route.png");
+    plan4.transform.Translate(vec3(0, 0, -(float)((sizeY / 2) + 3 * sizeY)));
+    plan5.makePlan(resolutionX, resolutionY, sizeX, sizeY, (float)(sizeX / 2), 0, 1, false, "../textures/Heightmap_Mountain.png");
+    plan5.loadTexture("../textures/Route.png");
+    plan5.transform.Translate(vec3(0, 0, -(float)((sizeY / 2) + 4 * sizeY)));
+    plan6.makePlan(resolutionX, resolutionY, sizeX, sizeY, (float)(sizeX / 2), 0, 1, false, "../textures/Heightmap_Mountain.png");
+    plan6.loadTexture("../textures/Route.png");
+    plan6.transform.Translate(vec3(0, 0, -(float)((sizeY / 2) + 5 * sizeY)));
+
+    Vehicule CivilCars;
+    CivilCars.transform.Translate(vec3(-1, 0, 0));
+
+    Vehicule voitvoit(vec3(0, 0, 0.4));
+    Vehicule voitvoit3(vec3(0, 0, 0.3));
+    CivilCars.addChild(&voitvoit);
+    CivilCars.addChild(&voitvoit3);
+
+    voitvoit.loadObject("./sphere.off", 0);
+    voitvoit.loadTexture("../textures/rock.png");
+    voitvoit3.loadObject("./sphere.off", 0);
+    voitvoit3.loadTexture("../textures/sun.jpg");
+
+    Vehicule voitvoit2;
+
+    voitvoit2.loadObject("./sphere.off", 0);
+    voitvoit2.loadTexture("../textures/sun.jpg");
+
+    vector<vec3> BEvoit1, BEvoit2;
 
     planInfini.addChild(&plan1);
     planInfini.addChild(&plan2);
     planInfini.addChild(&plan3);
     planInfini.addChild(&plan4);
     planInfini.addChild(&plan5);
+    planInfini.addChild(&plan6);
 
     Object3D racine;
+
     racine.addChild(&planInfini);
     racine.addChild(&Bolide);
-
-    pthread_t thread;
-
-    if (pthread_create(&thread, NULL, updateFPS, (void *)0) != 0)
-    {
-        perror("erreur creation thread");
-        exit(1);
-    }
-    bool test = false;
-    vec3 centre = vec3(-1, 1, 0);
+    racine.addChild(&CivilCars);
 
     // ALuint buffer;
     // alGenBuffers(1, &buffer);
@@ -293,12 +319,16 @@ int main(void)
 
     // // Arrêtez la lecture du fichier audio
     // alSourceStop(source);
-
+    BEvoit1 = voitvoit.boiteEnglobante();
+    BEvoit2 = voitvoit3.boiteEnglobante();
+    BE = pneuAvantGauche.boiteEnglobante();
     do
     {
-        // Measure speed
-        // per-frame time logic
-        // --------------------
+        // BEvoit1 = boiteEnglobante(voitvoit);
+        // BEvoit2 = boiteEnglobante(voitvoit2);
+        //  Measure speed
+        //  per-frame time logic
+        //  --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -322,19 +352,7 @@ int main(void)
         // LIBRE
         if (freemode)
         {
-            viewMatrix = glm::lookAt(cameraFree_position, cameraFree_position + cameraFront, cameraFree_up);
-        }
-        // ORBIT
-        if (orbitmode)
-        {
-            // std::cout << "Mode de caméra : orbital" << std::endl;
-            viewMatrix = glm::lookAt(cameraOrbit_position, cameraOrbit_target, cameraOrbit_up);
-        }
-        // Rotate animation
-        if (presentationmode)
-        {
-            // ModelMatrix = rotate(ModelMatrix,rotateSpeed,glm::vec3(0,1,0));
-            viewMatrix = glm::lookAt(glm::vec3(0, 3, 3), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+            viewMatrix = glm::lookAt(Cam->getPosition(), Cam->getPosition() + Cam->getFront(), Cam->getUp());
         }
 
         // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
@@ -369,45 +387,32 @@ int main(void)
         //     }
         // }
 
-        planInfini.transform.Translate(-(Bolide.getSpeed() * cameraFront));
-        Bolide.addSpeed(vec3(0, 0, -(0.005 * Bolide.getSpeed().z * Bolide.getSpeed().z)));
-        if (Bolide.getSpeed().z < 0.1 && !Bolide.getStop())
-        {
-            Bolide.addSpeed(vec3(0, 0, 0.1));
-        }
+        crash(CivilCars, pneuAvantGauche);
 
-        pneuAvantGauche.transform.Rotation(vec3(0, 1, 0), Bolide.getSpeed().z);
-        pneuAvantDroit.transform.Rotation(vec3(0, 1, 0), Bolide.getSpeed().z);
-        pneuArriereGauche.transform.Rotation(vec3(0, 1, 0), Bolide.getSpeed().z);
-        pneuArriereDroit.transform.Rotation(vec3(0, 1, 0), Bolide.getSpeed().z);
+        if (play)
+        {
+            // cout<<voitvoit.transform.t[0]<<" ; "<<voitvoit.getVertices()[0][1]<<" ; "<<voitvoit.getVertices()[0][2]<<std::endl ;
+            planInfini.transform.Translate(-(Bolide.getSpeed() * Cam->getFront()));
+            for (size_t i = 0; i < CivilCars.getChilds().size(); i++)
+            {
+                Vehicule *civilCar = dynamic_cast<Vehicule *>(CivilCars.getChilds()[i]);
 
-        checkFreinAMain(Bolide, planInfini, plan1);
+                civilCar->transform.Translate(-(Bolide.getSpeed() * Cam->getFront()) + civilCar->getSpeed() * Cam->getFront());
+                // cout << civilCar->transform.t[0] << endl;
+                desseleration(*civilCar);
+                RandomAcceleration(*civilCar);
+            }
 
-        if (planInfini.transform.t[2] > 6 && planToMove == 1)
-        {
-            plan1.transform.Translate(vec3(0, 0, -60));
-            planToMove = 2;
-        }
-        else if (planInfini.transform.t[2] > 18 && planToMove == 2)
-        {
-            plan2.transform.Translate(vec3(0, 0, -60));
-            planToMove = 3;
-        }
-        else if (planInfini.transform.t[2] > 30 && planToMove == 3)
-        {
-            plan3.transform.Translate(vec3(0, 0, -60));
-            planToMove = 4;
-        }
-        else if (planInfini.transform.t[2] > 42 && planToMove == 4)
-        {
-            plan4.transform.Translate(vec3(0, 0, -60));
-            planToMove = 5;
-        }
-        else if (planInfini.transform.t[2] > 54 && planToMove == 5)
-        {
-            plan5.transform.Translate(vec3(0, 0, -60));
-            planToMove = 1;
-            planInfini.transform.t.z -= 60;
+            pneuAvantGauche.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
+            pneuAvantDroit.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
+            pneuArriereGauche.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
+            pneuArriereDroit.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
+
+            desseleration(Bolide);
+
+            InfiniPlan(planInfini);
+
+            checkFreinAMain(Bolide, planInfini, plan1);
         }
 
         turnPneu(roueDirectionnelleDroite, roueDirectionnelleGauche, false);
@@ -534,9 +539,6 @@ int main(void)
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    const float polarangle = 20;
-    const float azimuthangle = 20;
-    const float radius = 5;
 
     const float cameraSpeed = 10 * deltaTime; // adjust accordingly
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -548,14 +550,9 @@ void processInput(GLFWwindow *window)
                 Bolide.addSpeed(vec3(0, 0, 0.01));
                 if (Bolide.getSpeed().z > 2)
                 {
-                    Bolide.addSpeed(vec3(0, 0, 2));
+                    Bolide.setSpeed(vec3(0, 0, 2));
                 }
             }
-        }
-        if (orbitmode)
-        {
-            if (cameraOrbit_position.y < 6)
-                cameraOrbit_position += glm::normalize(cameraOrbit_up) * cameraSpeed;
         }
     }
 
@@ -568,26 +565,20 @@ void processInput(GLFWwindow *window)
                 Bolide.addSpeed(vec3(0, 0, -0.02));
                 if (Bolide.getSpeed().z < 0.1)
                 {
-                    Bolide.addSpeed(vec3(0, 0, 0.1));
+                    Bolide.setSpeed(vec3(0, 0, 0.1));
                 }
             }
         }
-        if (orbitmode)
-            if (glm::dot(cameraOrbit_target - cameraOrbit_position, glm::vec3(0, 1, 0)) < 0)
-                cameraOrbit_position -= glm::normalize(cameraOrbit_up) * cameraSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !Bolide.getStop())
     {
         if (freemode)
         {
-            vec3 move = glm::normalize(glm::cross(cameraFront, cameraFree_up)) * cameraSpeed;
-            planInfini.transform.Translate(move);
-            planInfini.transform.t += move;
+            vec3 move = glm::normalize(glm::cross(Cam->getFront(), Cam->getUp())) * cameraSpeed;
+            Bolide.transform.Translate(-move);
+            Cam->setPosition(Cam->getPosition() - move);
+
             Bolide.setTurn(1);
-        }
-        if (orbitmode)
-        {
-            cameraOrbit_position -= glm::normalize(glm::cross((cameraOrbit_target - cameraOrbit_position), cameraOrbit_up)) * cameraSpeed;
         }
     }
 
@@ -595,15 +586,10 @@ void processInput(GLFWwindow *window)
     {
         if (freemode)
         {
-            vec3 move = glm::normalize(glm::cross(cameraFront, cameraFree_up)) * cameraSpeed;
-            planInfini.transform.Translate(-move);
-            planInfini.transform.t -= move;
+            vec3 move = glm::normalize(glm::cross(Cam->getFront(), Cam->getUp())) * cameraSpeed;
+            Bolide.transform.Translate(move);
+            Cam->setPosition(Cam->getPosition() + move);
             Bolide.setTurn(2);
-        }
-
-        if (orbitmode)
-        {
-            cameraOrbit_position += glm::normalize(glm::cross((cameraOrbit_target - cameraOrbit_position), cameraOrbit_up)) * cameraSpeed;
         }
     }
 
@@ -614,7 +600,7 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
     {
-        cameraFree_position += vec3(0, 10, 0);
+        Cam->getPosition() += vec3(0, 10, 0);
     }
 
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
@@ -636,33 +622,33 @@ void processInput(GLFWwindow *window)
         freemode = true;
         orbitmode = false;
     }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    {
-        rotateSpeed += 0.001;
-    }
+    // if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    // {
+    //     rotateSpeed += 0.001;
+    // }
 
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-    {
-        rotateSpeed -= 0.001;
-    }
+    // if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    // {
+    //     rotateSpeed -= 0.001;
+    // }
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-    {
-        Bolide.transform.Translate(vec3(0.2, 0, 0));
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-    {
-        Bolide.transform.Translate(vec3(-0.2, 0, 0));
-    }
+    // if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    // {
+    //     Bolide.transform.Translate(vec3(0.2, 0, 0));
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    // {
+    //     Bolide.transform.Translate(vec3(-0.2, 0, 0));
+    // }
 
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    {
-        Bolide.transform.Translate(vec3(0., 0, -0.2));
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-    {
-        Bolide.transform.Translate(vec3(0, 0, 0.2));
-    }
+    // if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    // {
+    //     Bolide.transform.Translate(vec3(0., 0, -0.2));
+    // }
+    // if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    // {
+    //     Bolide.transform.Translate(vec3(0, 0, 0.2));
+    // }
 
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
     {
@@ -672,6 +658,24 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
     {
         letsgo = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        play = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+    {
+        vec3 newPos = Cam->getPosition();
+        newPos.z = 0;
+        Cam->setPosition(newPos);
+    }
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+    {
+        vec3 newPos = Cam->getPosition();
+        newPos.z = 5;
+        Cam->setPosition(newPos);
     }
 
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
@@ -684,7 +688,11 @@ void processInput(GLFWwindow *window)
         for (size_t i = 0; i < planInfini.getChilds().size(); i++)
         {
             Transform t2;
-            planInfini.getChilds()[i]->transform = t;
+            ObjectPlan *currentPlan = dynamic_cast<ObjectPlan *>(planInfini.getChilds()[i]);
+
+            currentPlan->transform = t2;
+            currentPlan->transform.Translate(vec3(0, 0, -((float)(currentPlan->getsizeY() / 2) + i * currentPlan->getsizeY())));
+            Cam->setPosition(Cam->getDepPosition());
             planToMove = 1;
         }
     }
@@ -732,7 +740,7 @@ void turnPneu(Object3D &roueDirectionnelleDroite, Object3D &roueDirectionnelleGa
 void checkFreinAMain(Vehicule &Bolide, ObjectPlan &planInfini, ObjectPlan &lastChild)
 {
     Bolide.setStop(false);
-    if (planInfini.transform.t.x < -lastChild.getsizeX())
+    if (Bolide.transform.t.x > lastChild.getOffsetX())
     {
         cout << "HORS LIMITE DROITE" << endl;
         Bolide.setTurn(2);
@@ -745,16 +753,145 @@ void checkFreinAMain(Vehicule &Bolide, ObjectPlan &planInfini, ObjectPlan &lastC
         else
         {
             planInfini.transform.Translate(vec3(0, 0, Bolide.getSpeed().z));
-            Bolide.transform.Rotation(vec3(0, 1, 0), radians(-Bolide.getSpeed().z * 5));
-            Bolide.getChilds()[2]->transform.Rotation(vec3(0, 1, 0), radians(Bolide.getSpeed().z * 5));
-            Bolide.getChilds()[3]->transform.Rotation(vec3(0, 1, 0), radians(Bolide.getSpeed().z * 5));
+            Bolide.transform.Rotation(vec3(0, 1, 0), radians(-Bolide.getSpeed().z * 10));
+            Bolide.getChilds()[2]->transform.Rotation(vec3(0, 1, 0), radians(Bolide.getSpeed().z * 10));
+            Bolide.getChilds()[3]->transform.Rotation(vec3(0, 1, 0), radians(Bolide.getSpeed().z * 10));
         }
     }
     else
     {
-        if (planInfini.transform.t.x > lastChild.getsizeX())
+        if (Bolide.transform.t.x < -lastChild.getOffsetX())
         {
             cout << "HORS LIMITE GAUCHE" << endl;
+            Bolide.setTurn(1);
+            Bolide.mulSpeed(vec3(1, 1, 0.8));
+            if (Bolide.getSpeed().z < 0.1)
+            {
+                Bolide.setSpeed(vec3(1, 1, 0));
+                Bolide.setStop(true);
+            }
+            else
+            {
+                planInfini.transform.Translate(vec3(0, 0, Bolide.getSpeed().z));
+                Bolide.transform.Rotation(vec3(0, 1, 0), radians(Bolide.getSpeed().z * 5));
+                Bolide.getChilds()[2]->transform.Rotation(vec3(0, 1, 0), radians(Bolide.getSpeed().z * 10));
+                Bolide.getChilds()[3]->transform.Rotation(vec3(0, 1, 0), radians(Bolide.getSpeed().z * 10));
+            }
+        }
+    }
+}
+
+void InfiniPlan(ObjectPlan &planInfini)
+{
+
+    for (size_t i = 1; i <= planInfini.getChilds().size(); i++)
+    {
+
+        ObjectPlan *currentPlan = dynamic_cast<ObjectPlan *>(planInfini.getChilds()[i - 1]);
+        if (planInfini.transform.t.z > (float)(currentPlan->getsizeY() / 2) + (i - 1) * currentPlan->getsizeY() && planToMove == i)
+        {
+
+            currentPlan->transform.Translate(vec3(0, 0, -(currentPlan->getsizeY() * (int)planInfini.getChilds().size())));
+            // cout<<"Plan Bougé "<<planToMove<<endl;
+            planToMove = i + 1;
+            if (i == (int)planInfini.getChilds().size())
+            {
+                planToMove = 1;
+                planInfini.transform.t.z -= currentPlan->getsizeY() * (int)planInfini.getChilds().size();
+            }
+        }
+    }
+}
+
+void UpdateObjects(ObjectPlan &plan)
+{
+    for (Object3D *child : plan.getChilds())
+    {
+        Transform t;
+        child->transform = t;
+
+        float randFloatX = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+
+        // Generate a random float between a specified range
+        float minValX = -plan.getOffsetX();
+        float maxValX = plan.getOffsetX();
+        float randRangeX = (maxValX - minValX) * randFloatX + minValX;
+
+        float randFloatZ = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+
+        // Generate a random float between a specified range
+        float minValZ = -plan.getOffsetZ();
+        float maxValZ = plan.getOffsetZ();
+        float randRangeZ = (maxValZ - minValZ) * randFloatZ + minValZ;
+        // cout << "ici : " << minValZ << endl;
+        child->transform.Translate(vec3(randRangeX, 0, randRangeZ));
+    }
+}
+
+int cvbhjn = 1;
+void crash(Object3D &CivilCar, Object3D &voit)
+{
+    Object3D *voiture;
+    glm::vec3 pilotePosition = glm::vec3(Cam->getPosition()[0], 0, 0);
+
+    glm::vec3 advPosition;
+    vector<glm::vec3> BEadv;
+    vector<glm::vec3> BEpilote = voit.getBE();
+    vec4 min = vec4(BEpilote[0], 1);
+    min = voit.transform.modelMatrix*min;
+    vec4 max = vec4(BEpilote[1], 1);
+    max = voit.transform.modelMatrix*max;
+
+    //  cout<<"yoooooYmin "<<BEpilote[0][1]<<endl;
+    //  cout<<"yoooooYmax "<<BEpilote[1][1]<<endl;
+
+    for (size_t i = 0; i < CivilCar.getChilds().size(); i++)
+    {
+        voiture = CivilCar.getChilds()[i];
+        advPosition = voiture->transform.t;
+        BEadv = voiture->getBE();
+
+        vec4 minV = vec4(BEadv[0], 1.0);
+        minV = voiture->transform.modelMatrix*minV;
+        vec4 maxV = vec4(BEadv[1], 1.0);
+        maxV = voiture->transform.modelMatrix*maxV;
+        // cout << "yooooo " << minV[0] <<" ; "<< minV[1] <<" ; "<< minV[2] <<" ; "<< maxV[0] <<" ; "<< maxV[1] <<" ; "<< maxV[2] <<" ; "<< endl;
+
+        if (((Bolide.getTurn()==1 && min.x < maxV.x)||(Bolide.getTurn()==2 && max.x > minV.x) || (Bolide.getTurn()==0 && min.x < maxV.x && max.x > minV.x))
+        &&(/* (advPosition[2]+max.z>-abs(maxV.z - minV.z)) */advPosition[2]+abs(maxV.z-minV.z)/2 > min.z) && (advPosition[2]+abs(maxV.z-minV.z)/2 < max.z)/*  && pilotePosition.z-BEpilote[7].z<advPosition.z+BEadv[0].z */)
+        {
+            //std::cout<<"can I get some burgers "<<cvbhjn<<std::endl ;
+            cout<<min.z<<" ; "<<max.z<<" ou "<<minV.z<<" ; "<<maxV.z<<endl ;
+            cout<<"Position : "<<advPosition[2]<<endl ;
+            cvbhjn++;
+        }
+        
+
+    }
+    
+}
+
+void desseleration(Vehicule &car)
+{
+
+    car.addSpeed(vec3(0, 0, -(0.005 * car.getSpeed().z * car.getSpeed().z)));
+
+    if (car.getSpeed().z < 0.1 && !car.getStop())
+    {
+        car.addSpeed(vec3(0, 0, 0.1));
+    }
+}
+
+void RandomAcceleration(Vehicule &car)
+{
+
+    int k = rand() % 2;
+    if (k == 1)
+    {
+        car.addSpeed(vec3(0, 0, 0.01));
+        if (car.getSpeed().z > 2)
+        {
+            car.setSpeed(vec3(0, 0, 2));
         }
     }
 }

@@ -280,6 +280,7 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./TP1/Transform.hpp \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./TP1/Vehicule.hpp \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./TP1/ObjectLoaded.hpp \
+ /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./TP1/Camera.hpp \
  /usr/include/c++/11/chrono /usr/include/c++/11/ratio \
  /usr/include/c++/11/ctime /usr/include/c++/11/bits/parse_numbers.h \
  /usr/include/c++/11/thread /usr/include/c++/11/bits/std_thread.h \

@@ -21,10 +21,10 @@ protected:
 public:
     float offSetZ;
     ObjectPlan(/* args */);
-    ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ,string pathText, bool HeightMap,  string HeightMapPath = "",float offsetY = 0);
+    ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, bool HeightMap,  string HeightMapPath = "",float offsetY = 0);
 
     ~ObjectPlan();
-    void makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY, string pathText, bool HeightMap,string HeightMapPath = "");
+    void makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY, bool HeightMap,string HeightMapPath = "");
     void changeResolution(int newResX, int newResY);
     void draw(GLuint programID);
     float getOffsetZ();
@@ -44,7 +44,7 @@ ObjectPlan::ObjectPlan(/* args */)
 {
 }
 
-ObjectPlan::ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ,string pathText, bool HeightMap, string HeightMapPath,  float offsetY)
+ObjectPlan::ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, bool HeightMap, string HeightMapPath,  float offsetY)
 {
     this->nX = nX;
     this->nY = nY;
@@ -55,16 +55,15 @@ ObjectPlan::ObjectPlan(int nX, int nY, int sizeX, int sizeY, float offsetX, floa
     this->offsetZ = offsetZ;
     this->HeightMap = HeightMap;
     this->HeightMapPath = HeightMapPath;
-    this->texturePath=pathText;
 
-    makePlan(nX, nY, sizeX, sizeY, offsetX, offsetZ, offsetY,pathText, HeightMap,  HeightMapPath);
+    makePlan(nX, nY, sizeX, sizeY, offsetX, offsetZ, offsetY, HeightMap,  HeightMapPath);
 }   
 
 ObjectPlan::~ObjectPlan()
 {
 }
 
-void ObjectPlan::makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY,string pathText, bool HeightMap,  string HeightMapPath)
+void ObjectPlan::makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, float offsetZ, float offsetY, bool HeightMap,  string HeightMapPath)
 {
      this->nX = nX;
     this->nY = nY;
@@ -75,7 +74,6 @@ void ObjectPlan::makePlan(int nX, int nY, int sizeX, int sizeY, float offsetX, f
     this->offsetZ = offsetZ;
     this->HeightMap = HeightMap;
     this->HeightMapPath = HeightMapPath;
-    this->texturePath=pathText;
     this->vertices.clear();
     this->indices.clear();
 
@@ -149,7 +147,7 @@ void ObjectPlan::changeResolution(int newResX, int newResY)
 {
     this->nX = newResX;
     this->nY = newResY;
-    makePlan(this->nX, this->nY, this->sizeX, this->sizeY, this->offsetX, this->offSetZ, this->offsetY, this->texturePath,this->HeightMap, this->HeightMapPath);
+    makePlan(this->nX, this->nY, this->sizeX, this->sizeY, this->offsetX, this->offSetZ, this->offsetY,this->HeightMap, this->HeightMapPath);
 }
 
 void ObjectPlan::draw(GLuint programID)

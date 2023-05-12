@@ -78,7 +78,8 @@
         "source_location": "cpp",
         "future": "cpp",
         "forward_list": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "ranges": "cpp"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/TP3",
     "cmake.configureOnOpen": false

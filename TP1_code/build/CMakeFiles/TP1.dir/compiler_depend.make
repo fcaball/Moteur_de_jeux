@@ -323,6 +323,7 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp \
   ../TP1/Transform.hpp \
   ../TP1/Vehicule.hpp \
   ../TP1/ObjectLoaded.hpp \
+  ../TP1/Camera.hpp \
   /usr/include/c++/11/chrono \
   /usr/include/c++/11/ratio \
   /usr/include/c++/11/ctime \
@@ -1684,6 +1685,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/c++/11/thread:
 
 /usr/include/c++/11/ratio:
+
+../TP1/Camera.hpp:
 
 ../TP1/Vehicule.hpp:
 

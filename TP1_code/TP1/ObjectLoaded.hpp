@@ -29,14 +29,7 @@ void ObjectLoaded::loadObject(const std::string &filename, int typeObject)
     if (typeObject == 0)
     { // off
         loadOFF(filename, this->vertices, this->indices, triangles);
-        
-    }
-    else if (typeObject == 1) // obj
-    {
-        std::vector<vec3> normals;
-        loadModel(filename.c_str(), this->vertices, this->indices, normals);
-    }
-vector<vec2> uvs;
+        vector<vec2> uvs;
 
         long int taille = vertices.size();
         float theta, phi, u, v;
@@ -49,6 +42,13 @@ vector<vec2> uvs;
             uvs.push_back(vec2(u, v));
         }
         this->UVs = uvs;
+    }
+    else if (typeObject == 1) // obj ...
+    {
+        std::vector<vec3> normals;
+        loadModel(filename.c_str(), this->indices, this->vertices,  normals,this->UVs);
+    }
+
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);

@@ -37,6 +37,10 @@ public:
     void removeChild(int pos);
     vector<vec3> boiteEnglobante();
     vector<vec3> getBE();
+    void addBE(vector<vec3> BEenCours, vector<vec3> BE);
+    vec3 modifTranslation(vec3 translationEnCours, vec3 t);
+    vec3 modifTranslationBis(vec3 translationEnCours, vec3 scale);
+
 };
 
 Object3D::Object3D()
@@ -298,4 +302,22 @@ vector<vec3> Object3D::boiteEnglobante()
 vector<vec3> Object3D::getBE()
 {
     return cube;
+}
+
+void Object3D::addBE(vector<vec3> BEenCours, vector<vec3> BE)
+{
+    cube[0][0] = std::min(BEenCours[0][0], BE[0][0]);
+    cube[0][1] = std::min(BEenCours[0][1], BE[0][1]);
+    cube[0][2] = std::min(BEenCours[0][2], BE[0][2]);
+    cube[1][0] = std::max(BEenCours[1][0], BE[1][0]);
+    cube[1][1] = std::max(BEenCours[1][1], BE[1][1]);
+    cube[1][2] = std::max(BEenCours[1][2], BE[1][2]);
+}
+
+vec3 Object3D::modifTranslation(vec3 translationEnCours, vec3 t){
+    return vec3(translationEnCours[0] + t[0], translationEnCours[1] + t[1], translationEnCours[2] + t[2]) ;
+}
+
+vec3 Object3D::modifTranslationBis(vec3 translationEnCours, vec3 scale){
+    return vec3(translationEnCours[0] * scale[0], translationEnCours[1] * scale[1], translationEnCours[2] * scale[2]);
 }

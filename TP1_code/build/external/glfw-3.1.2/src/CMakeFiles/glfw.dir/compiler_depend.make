@@ -112,9 +112,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/context.c.o: ../external/glfw-3.1.2/
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -259,9 +256,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/glx_context.c.o: ../external/glfw-3.
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -407,9 +401,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/init.c.o: ../external/glfw-3.1.2/src
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -552,9 +543,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/input.c.o: ../external/glfw-3.1.2/sr
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -695,9 +683,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/linux_joystick.c.o: ../external/glfw
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -884,9 +869,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/monitor.c.o: ../external/glfw-3.1.2/
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -1045,9 +1027,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/posix_time.c.o: ../external/glfw-3.1
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -1184,9 +1163,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/posix_tls.c.o: ../external/glfw-3.1.
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -1322,9 +1298,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/window.c.o: ../external/glfw-3.1.2/s
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -1467,9 +1440,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/x11_init.c.o: ../external/glfw-3.1.2
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -1622,9 +1592,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/x11_monitor.c.o: ../external/glfw-3.
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -1774,9 +1741,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/x11_window.c.o: ../external/glfw-3.1
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -1801,6 +1765,7 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/x11_window.c.o: ../external/glfw-3.1
   /usr/include/GL/glx.h \
   ../external/glfw-3.1.2/deps/GL/glxext.h \
   /usr/include/X11/cursorfont.h \
+  /usr/include/X11/Xmd.h \
   /usr/include/string.h \
   /usr/include/strings.h \
   /usr/include/stdlib.h \
@@ -1934,9 +1899,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/xkb_unicode.c.o: ../external/glfw-3.
   /usr/include/X11/extensions/Xge.h \
   /usr/include/X11/extensions/Xfixes.h \
   /usr/include/X11/extensions/xfixeswire.h \
-  /usr/include/X11/extensions/xf86vmode.h \
-  /usr/include/X11/Xmd.h \
-  /usr/include/X11/extensions/xf86vm.h \
   ../external/glfw-3.1.2/src/posix_tls.h \
   /usr/include/pthread.h \
   /usr/include/sched.h \
@@ -2010,6 +1972,8 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/xkb_unicode.c.o: ../external/glfw-3.
 
 /usr/include/x86_64-linux-gnu/bits/ioctl-types.h:
 
+/usr/include/asm-generic/ioctl.h:
+
 /usr/include/x86_64-linux-gnu/asm/ioctl.h:
 
 /usr/include/asm-generic/ioctls.h:
@@ -2082,14 +2046,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/xkb_unicode.c.o: ../external/glfw-3.
 
 ../external/glfw-3.1.2/src/posix_time.h:
 
-../external/glfw-3.1.2/src/glx_context.c:
-
-/usr/include/x86_64-linux-gnu/bits/pthread_stack_min.h:
-
-/usr/include/linux/errno.h:
-
-/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
-
 /usr/include/x86_64-linux-gnu/bits/sigstksz.h:
 
 /usr/include/x86_64-linux-gnu/bits/sigstack.h:
@@ -2104,10 +2060,6 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/xkb_unicode.c.o: ../external/glfw-3.
 
 /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
 
-/usr/include/asm-generic/ioctl.h:
-
-/usr/include/X11/extensions/xf86vmode.h:
-
 ../external/glfw-3.1.2/src/x11_init.c:
 
 /usr/include/x86_64-linux-gnu/bits/types/time_t.h:
@@ -2121,6 +2073,10 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/xkb_unicode.c.o: ../external/glfw-3.
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
+
+../external/glfw-3.1.2/src/glx_context.c:
+
+/usr/include/x86_64-linux-gnu/bits/pthread_stack_min.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h:
 
@@ -2144,6 +2100,10 @@ external/glfw-3.1.2/src/CMakeFiles/glfw.dir/xkb_unicode.c.o: ../external/glfw-3.
 
 external/glfw-3.1.2/src/glfw_config.h:
 
+/usr/include/X11/Xmd.h:
+
+/usr/include/x86_64-linux-gnu/bits/timesize.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h:
 
 ../external/glfw-3.1.2/src/glx_context.h:
@@ -2152,11 +2112,11 @@ external/glfw-3.1.2/src/glfw_config.h:
 
 /usr/include/x86_64-linux-gnu/bits/environments.h:
 
-/usr/include/x86_64-linux-gnu/bits/timesize.h:
-
-/usr/include/X11/Xmd.h:
-
 /usr/include/features-time64.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
@@ -2334,6 +2294,8 @@ external/glfw-3.1.2/src/glfw_config.h:
 
 /usr/include/X11/Xcursor/Xcursor.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
+
 /usr/include/X11/extensions/XInput2.h:
 
 /usr/include/signal.h:
@@ -2375,10 +2337,6 @@ external/glfw-3.1.2/src/glfw_config.h:
 /usr/include/X11/extensions/Xfixes.h:
 
 /usr/include/X11/extensions/xfixeswire.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
-
-/usr/include/X11/extensions/xf86vm.h:
 
 /usr/include/pthread.h:
 

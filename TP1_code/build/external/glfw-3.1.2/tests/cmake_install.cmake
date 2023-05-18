@@ -1,4 +1,4 @@
-# Install script for directory: /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/external/glfw-3.1.2/tests
+# Install script for directory: /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/external/glfw-3.1.2/tests
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

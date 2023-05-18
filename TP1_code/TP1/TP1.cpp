@@ -198,7 +198,7 @@ int main(void)
         exit(1);
     }
 
-    Cam = new Camera(vec3(0.0f, 2.0f, 5.0f), vec3(), vec3(0, 1, 0), vec3(0, 0, -1));
+    Cam = new Camera(vec3(2.0f, 2.0f, 5.0f), vec3(), vec3(0, 1, 0), vec3(0, 0, -1));
     int ObjectState = 1;
 
     Bolide.transform.Scale(vec3(1, 1, 1));
@@ -684,6 +684,7 @@ void processInput(GLFWwindow *window)
         Transform t1;
         Bolide.setStop(true);
         Bolide.transform = t;
+        Bolide.transform.Translate(vec3(2,0,0));
         planInfini.transform = t1;
         for (size_t i = 0; i < planInfini.getChilds().size(); i++)
         {

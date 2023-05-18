@@ -23,7 +23,7 @@ public:
         this->position = position;
         this->target = target;
         this->direction = glm::normalize(this->position - this->target);
-        ;
+        
         this->front = front;
         this->up = up;
         this->right = glm::normalize(glm::cross(this->up, this->direction));

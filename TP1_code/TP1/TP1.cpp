@@ -244,7 +244,7 @@ int main(void)
     pneuArriereGauche.transform.Translate(vec3(-1, 0, 0));
     // pneuArriereGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuArriereGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
-    Bolide.addChild(&pneuArriereGauche);
+    // Bolide.addChild(&pneuArriereGauche);
 
     ObjectLoaded pneuArriereDroit;
     pneuArriereDroit.loadObject("./pneu.obj", 1);
@@ -252,7 +252,7 @@ int main(void)
     pneuArriereDroit.transform.Translate(vec3(1, 0, 0));
     // pneuArriereDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuArriereDroit.transform.Scale(vec3(0.5, 0.5, 0.5));
-    Bolide.addChild(&pneuArriereDroit);
+    // Bolide.addChild(&pneuArriereDroit);
     translationPneuARG = pneuArriereGauche.modifTranslation(translationPneuARG, vec3(-1,0,0));
     translationPneuARD = pneuArriereDroit.modifTranslation(translationPneuARD, vec3(1,0,0));
 
@@ -424,7 +424,7 @@ int main(void)
         //     }
         // }
 
-        crash(CivilCars, pneuAvantGauche);
+
 
         if (play)
         {
@@ -461,6 +461,7 @@ int main(void)
         //     vector<unsigned short> carrétrouvé;
         //     for (size
         turnPneu(roueDirectionnelleDroite, roueDirectionnelleGauche, false);
+        crash(CivilCars, pneuAvantGauche);
 
         racine.updateMeAndChilds();
         racine.draw(programID);

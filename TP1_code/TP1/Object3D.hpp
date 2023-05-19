@@ -40,7 +40,7 @@ public:
     void addBE(vector<vec3> BEenCours, vector<vec3> BE);
     vec3 modifTranslation(vec3 translationEnCours, vec3 t);
     vec3 modifTranslationBis(vec3 translationEnCours, vec3 scale);
-
+    void setBE(vector<vec3> BE);
 };
 
 Object3D::Object3D()
@@ -320,4 +320,8 @@ vec3 Object3D::modifTranslation(vec3 translationEnCours, vec3 t){
 
 vec3 Object3D::modifTranslationBis(vec3 translationEnCours, vec3 scale){
     return vec3(translationEnCours[0] * scale[0], translationEnCours[1] * scale[1], translationEnCours[2] * scale[2]);
+}
+
+void Object3D::setBE(vector<vec3> BE){
+    cube = {{BE[0][0], BE[0][1], BE[0][2]},{BE[1][0], BE[1][1], BE[1][2]}};
 }

@@ -79,7 +79,8 @@
         "future": "cpp",
         "forward_list": "cpp",
         "regex": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "shared_mutex": "cpp"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/TP3",
     "cmake.configureOnOpen": false

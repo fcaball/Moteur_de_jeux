@@ -270,6 +270,10 @@ CMakeFiles/TP1.dir/common/objloader.cpp.o: \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./glm/detail/func_integer.hpp \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/./glm/detail/func_integer.inl \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/common/objloader.hpp \
+ /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/common/vboindexer.hpp \
+ /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/common/texture.hpp \
+ /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/external/glew-1.13.0/include/GL/glew.h \
+ /usr/include/GL/glu.h /usr/include/GL/gl.h \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/external/assimp/include/assimp/Importer.hpp \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/external/assimp/include/assimp/types.h \
  /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/external/assimp/include/assimp/defs.h \

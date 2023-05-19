@@ -46,7 +46,7 @@ void ObjectLoaded::loadObject(const std::string &filename, int typeObject)
     else if (typeObject == 1) // obj ...
     {
         std::vector<vec3> normals;
-        loadModel(filename.c_str(), this->indices, this->vertices,  normals,this->UVs);
+        load_model(filename.c_str(), this->indices, this->vertices,  normals,this->UVs);
     }
 
     glGenBuffers(1, &vertexbuffer);

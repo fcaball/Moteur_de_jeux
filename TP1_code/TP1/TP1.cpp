@@ -972,15 +972,26 @@ void RandomAcceleration(Vehicule &car)
 void vitesseAdv(Vehicule &pilote, Vehicule &adv)
 {
     vec3 advPosition = adv.transform.t;
+    cout<<"ehehehehe : "<<pilote.transform.t.x ;
     vec3 vitessePilote = pilote.getSpeed();
-    if (advPosition.z < -30 && vitessePilote.z>1.5)
+    vector<glm::vec3> BEadv = adv.getBE();
+    // cout << "BE = "
+    //<< "(" << BEpilote[0][0] << " ; " << BEpilote[0][1] << " ; " << BEpilote[0][2] << ") ; (" << BEpilote[1][0] << " ; " << BEpilote[1][1] << " ; " << BEpilote[1][2] << ") ; " << endl;
+    vec4 min = vec4(BEadv[0], 1);
+    min = adv.transform.modelMatrix * min;
+    vec4 max = vec4(BEadv[1], 1);
+    max = adv.transform.modelMatrix * max;
+    if (advPosition.z < -20 && vitessePilote.z>1.5)
     {
-        adv.setSpeed(vec3(0, 0, vitessePilote.z + advPosition.z*0.00005));
+        adv.setSpeed(vec3(0, 0, vitessePilote.z + advPosition.z*0.01));
 
     }
     // else if (advPosition.z > 10)
-    else if (advPosition.z > 1){
+    else if (advPosition.z > 10){
         adv.setSpeed(vec3(0, 0, vitessePilote.z + 0.01));
+    }
+    else if(advPosition.z < -10 && advPosition.z > -20 && vitessePilote.z>1.5 && pilote.transform.t.x>min.x && pilote.transform.t.x<max.x && vitessePilote.z>1){
+        pilote.setSpeed(vec3(0,0,vitessePilote.z+0.5));
     }
     // else
     // {

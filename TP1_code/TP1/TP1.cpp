@@ -42,6 +42,7 @@ void UpdateObjects(ObjectPlan &plan);
 void crash(Object3D &CivilCar, Object3D &voit);
 void desseleration(Vehicule &car);
 void RandomAcceleration(Vehicule &car);
+void vitesseAdv(Vehicule &pilote, Vehicule &adv);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -203,19 +204,18 @@ int main(void)
 
     Bolide.transform.Scale(vec3(1, 1, 1));
     Bolide.transform.Translate(vec3(2, 0, 0));
-    vec3 translationPneuAVG, translationPneuAVD, translationPneuARG, translationPneuARD ;
-    translationPneuAVG = vec3(2,0,0);
-    translationPneuAVD = vec3(2,0,0);
-    translationPneuARG = vec3(2,0,0);
-    translationPneuARD = vec3(2,0,0);
+    vec3 translationPneuAVG, translationPneuAVD, translationPneuARG, translationPneuARD;
+    // translationPneuAVG = vec3(2,0,0);
+    // translationPneuAVD = vec3(2,0,0);
+    // translationPneuARG = vec3(2,0,0);
+    // translationPneuARD = vec3(2,0,0);
     Object3D roueDirectionnelleDroite;
     Object3D roueDirectionnelleGauche;
     roueDirectionnelleDroite.transform.Translate(vec3(1, 0, -2));
     roueDirectionnelleGauche.transform.Translate(vec3(-1, 0, -2));
 
-    translationPneuAVG = roueDirectionnelleGauche.modifTranslation(translationPneuAVG, vec3(-1,0,-2));
-    translationPneuAVD = roueDirectionnelleGauche.modifTranslation(translationPneuAVD, vec3(1,0,-2));
-
+    translationPneuAVG = roueDirectionnelleGauche.modifTranslation(translationPneuAVG, vec3(-1, 0, -2));
+    translationPneuAVD = roueDirectionnelleGauche.modifTranslation(translationPneuAVD, vec3(1, 0, -2));
 
     Bolide.addChild(&roueDirectionnelleGauche);
     Bolide.addChild(&roueDirectionnelleDroite);
@@ -225,8 +225,7 @@ int main(void)
     // pneuAvantGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuAvantGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
     roueDirectionnelleGauche.addChild(&pneuAvantGauche);
-    cout<<"pneuAvantGauche : "<<roueDirectionnelleGauche.transform.t[0]<<endl;
-
+    cout << "pneuAvantGauche : " << roueDirectionnelleGauche.transform.t[0] << endl;
 
     ObjectLoaded pneuAvantDroit;
     pneuAvantDroit.loadObject("./pneu.obj", 1);
@@ -234,9 +233,9 @@ int main(void)
     // pneuAvantDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuAvantDroit.transform.Scale(vec3(0.5, 0.5, 0.5));
     roueDirectionnelleDroite.addChild(&pneuAvantDroit);
-    cout<<"pneuAvantDroit : "<<roueDirectionnelleDroite.transform.t[0]<<endl;
-    translationPneuAVG = pneuAvantDroit.modifTranslationBis(translationPneuAVG, vec3(0.5,0.5,0.5));
-    translationPneuAVD = pneuAvantGauche.modifTranslationBis(translationPneuAVD, vec3(0.5,0.5,0.5));
+    cout << "pneuAvantDroit : " << roueDirectionnelleDroite.transform.t[0] << endl;
+    // translationPneuAVG = pneuAvantDroit.modifTranslationBis(translationPneuAVG, vec3(0.5,0.5,0.5));
+    // translationPneuAVD = pneuAvantGauche.modifTranslationBis(translationPneuAVD, vec3(0.5,0.5,0.5));
 
     ObjectLoaded pneuArriereGauche;
     pneuArriereGauche.loadObject("./pneu.obj", 1);
@@ -244,7 +243,7 @@ int main(void)
     pneuArriereGauche.transform.Translate(vec3(-1, 0, 0));
     // pneuArriereGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuArriereGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
-    // Bolide.addChild(&pneuArriereGauche);
+    Bolide.addChild(&pneuArriereGauche);
 
     ObjectLoaded pneuArriereDroit;
     pneuArriereDroit.loadObject("./pneu.obj", 1);
@@ -252,12 +251,12 @@ int main(void)
     pneuArriereDroit.transform.Translate(vec3(1, 0, 0));
     // pneuArriereDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
     pneuArriereDroit.transform.Scale(vec3(0.5, 0.5, 0.5));
-    // Bolide.addChild(&pneuArriereDroit);
-    translationPneuARG = pneuArriereGauche.modifTranslation(translationPneuARG, vec3(-1,0,0));
-    translationPneuARD = pneuArriereDroit.modifTranslation(translationPneuARD, vec3(1,0,0));
+    Bolide.addChild(&pneuArriereDroit);
+    translationPneuARG = pneuArriereGauche.modifTranslation(translationPneuARG, vec3(-1, 0, 0));
+    translationPneuARD = pneuArriereDroit.modifTranslation(translationPneuARD, vec3(1, 0, 0));
 
-    translationPneuARG = pneuArriereGauche.modifTranslationBis(translationPneuARG, vec3(0.5,0.5,0.5));
-    translationPneuARD = pneuArriereDroit.modifTranslationBis(translationPneuARD, vec3(0.5,0.5,0.5));
+    // translationPneuARG = pneuArriereGauche.modifTranslationBis(translationPneuARG, vec3(0.5,0.5,0.5));
+    // translationPneuARD = pneuArriereDroit.modifTranslationBis(translationPneuARD, vec3(0.5,0.5,0.5));
 
     float masseBolide = 2.1;
 
@@ -342,23 +341,27 @@ int main(void)
     BEvoit2 = voitvoit3.boiteEnglobante();
     BE = pneuAvantGauche.boiteEnglobante();
     vec4 min = vec4(BE[0], 1);
-    min = Bolide.transform.modelMatrix*min;
+    min = Bolide.transform.modelMatrix * min;
     vec4 max = vec4(BE[1], 1);
-    cout<<"min z : "<<min.z<<endl ;
-    max = Bolide.transform.modelMatrix*max;
-    min.x = translationPneuAVG.x + min.x ;
-    max.x = translationPneuAVD.x + max.x ;
-    cout<<"ici : "<<min.x<<endl ;
-    cout<<"ici : "<<max.x<<endl ;
-    min.z = translationPneuAVG.z + min.z ;
-    max.z = translationPneuARG.z + max.z ;
-    cout<<"min y : "<<translationPneuAVG.z<<endl ;
-    cout<<"ici : "<<min.z<<endl ;
-    cout<<"ici : "<<max.z<<endl ;
-    vec2 centre = vec2((max.x+min.x)/2, (max.z+min.z)/2);
-    cout<<"voir la: "<<centre.x<<endl ;
-    cout<<Cam->getPosition()[0]<<" ; "<<centre.y ;
-    vec3 trans ; 
+    cout << "min z : " << min.z << endl;
+    max = Bolide.transform.modelMatrix * max;
+    min.x = translationPneuAVG.x + min.x;
+    max.x = translationPneuAVD.x + max.x;
+    cout << "ici : " << min.x << endl;
+    cout << "ici : " << max.x << endl;
+    min.z = translationPneuAVG.z + min.z;
+    max.z = translationPneuARG.z + max.z;
+    cout << "min y : " << translationPneuAVG.z << endl;
+    cout << "ici : " << min.z << endl;
+    cout << "ici : " << max.z << endl;
+    vec2 centre = vec2((max.x + min.x) / 2, (max.z + min.z) / 2);
+    cout << "voir la: " << centre.x << endl;
+    cout << Cam->getPosition()[0] << " ; " << translationPneuARD.z << endl;
+    vec3 trans;
+    vector<vec3> boite = {{min.x, 0, min.z}, {max.x, 0, max.z}};
+    Bolide.setBE(boite);
+    cout << "BE = "
+         << "(" << BE[0][0] << " ; " << BE[0][1] << " ; " << BE[0][2] << ") ; (" << BE[1][0] << " ; " << BE[1][1] << " ; " << BE[1][02] << ") ; " << endl;
     do
     {
         // BEvoit1 = boiteEnglobante(voitvoit);
@@ -424,29 +427,36 @@ int main(void)
         //     }
         // }
 
-
-
         if (play)
         {
             // cout<<voitvoit.transform.t[0]<<" ; "<<voitvoit.getVertices()[0][1]<<" ; "<<voitvoit.getVertices()[0][2]<<std::endl ;
             planInfini.transform.Translate(-(Bolide.getSpeed() * Cam->getFront()));
-            trans = Bolide.getSpeed() * Cam->getFront() ;
-            //centre = vec2(centre.x+trans.x, centre.y+trans.z);
-            //cout<<centre[0]<<" ; "<<centre[1]<<endl;
+            trans = Bolide.getSpeed() * Cam->getFront();
+            // centre = vec2(centre.x+trans.x, centre.y+trans.z);
+            std::cout << Cam->getPosition()[0] << std::endl;
             for (size_t i = 0; i < CivilCars.getChilds().size(); i++)
             {
                 Vehicule *civilCar = dynamic_cast<Vehicule *>(CivilCars.getChilds()[i]);
-
+                // vector<vec3> BE = civilCar->getBE();
+                // vec4 min = vec4(BE[0], 1);
+                // min = civilCar->transform.modelMatrix * min;
+                // // vec4 max = vec4(BE[1], 1);
+                // // max = car.transform.modelMatrix*max;
+                // cout << "voir ici eheh : " << min.z << endl;
                 civilCar->transform.Translate(-(Bolide.getSpeed() * Cam->getFront()) + civilCar->getSpeed() * Cam->getFront());
                 // cout << civilCar->transform.t[0] << endl;
-                desseleration(*civilCar);
-                RandomAcceleration(*civilCar);
+                // if(min.z<-200){
+                // desseleration(*civilCar);
+                // RandomAcceleration(*civilCar);
+                // civilCar->setSpeed(Bolide.getSpeed());
+                //}
+                vitesseAdv(Bolide, *civilCar);
             }
 
-            pneuAvantGauche.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
-            pneuAvantDroit.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
-            pneuArriereGauche.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
-            pneuArriereDroit.transform.Rotation(vec3(1,0, 0), Bolide.getSpeed().z);
+            pneuAvantGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            pneuAvantDroit.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            pneuArriereGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            pneuArriereDroit.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
 
             desseleration(Bolide);
 
@@ -461,7 +471,7 @@ int main(void)
         //     vector<unsigned short> carrétrouvé;
         //     for (size
         turnPneu(roueDirectionnelleDroite, roueDirectionnelleGauche, false);
-        crash(CivilCars, pneuAvantGauche);
+        crash(CivilCars, Bolide);
 
         racine.updateMeAndChilds();
         racine.draw(programID);
@@ -623,7 +633,7 @@ void processInput(GLFWwindow *window)
             vec3 move = glm::normalize(glm::cross(Cam->getFront(), Cam->getUp())) * cameraSpeed;
             Bolide.transform.Translate(-move);
             Cam->setPosition(Cam->getPosition() - move);
-            //cout<<"move : "<<Cam->getPosition()[0]<<endl ;
+            // cout<<"move : "<<Cam->getPosition()[0]<<endl ;
             Bolide.setTurn(1);
         }
     }
@@ -635,7 +645,7 @@ void processInput(GLFWwindow *window)
             vec3 move = glm::normalize(glm::cross(Cam->getFront(), Cam->getUp())) * cameraSpeed;
             Bolide.transform.Translate(move);
             Cam->setPosition(Cam->getPosition() + move);
-            //cout<<"move : "<<Cam->getPosition()[0]<<endl ;
+            // cout<<"move : "<<Cam->getPosition()[0]<<endl ;
             Bolide.setTurn(2);
         }
     }
@@ -731,7 +741,7 @@ void processInput(GLFWwindow *window)
         Transform t1;
         Bolide.setStop(true);
         Bolide.transform = t;
-        Bolide.transform.Translate(vec3(2,0,0));
+        Bolide.transform.Translate(vec3(2, 0, 0));
         planInfini.transform = t1;
         for (size_t i = 0; i < planInfini.getChilds().size(); i++)
         {
@@ -884,59 +894,61 @@ void crash(Object3D &CivilCar, Object3D &voit)
     glm::vec3 advPosition;
     vector<glm::vec3> BEadv;
     vector<glm::vec3> BEpilote = voit.getBE();
+    // cout << "BE = "
+    //<< "(" << BEpilote[0][0] << " ; " << BEpilote[0][1] << " ; " << BEpilote[0][2] << ") ; (" << BEpilote[1][0] << " ; " << BEpilote[1][1] << " ; " << BEpilote[1][2] << ") ; " << endl;
     vec4 min = vec4(BEpilote[0], 1);
-    min = voit.transform.modelMatrix*min;
+    min = voit.transform.modelMatrix * min;
     vec4 max = vec4(BEpilote[1], 1);
-    max = voit.transform.modelMatrix*max;
-    vec3 diff ;
+    max = voit.transform.modelMatrix * max;
+    vec3 diff;
     //  cout<<"yoooooYmin "<<BEpilote[0][1]<<endl;
     //  cout<<"yoooooYmax "<<BEpilote[1][1]<<endl;
-
+    // cout<<"min = "<<min.x<<endl ;
+    // cout<<"max = "<<max.x<<endl ;
     for (size_t i = 0; i < CivilCar.getChilds().size(); i++)
     {
         voiture = dynamic_cast<Vehicule *>(CivilCar.getChilds()[i]);
         advPosition = voiture->transform.t;
         BEadv = voiture->getBE();
-        cout<<"advPosition z : "<<advPosition.z<<endl ;
-        cout<<"advPosition x : "<<advPosition.x<<endl ;
+
+        // cout << "advPosition z : " << advPosition.z << endl;
+        //  cout<<"advPosition x : "<<advPosition.x<<endl ;
 
         vec4 minV = vec4(BEadv[0], 1.0);
-        minV = voiture->transform.modelMatrix*minV;
+        minV = voiture->transform.modelMatrix * minV;
         vec4 maxV = vec4(BEadv[1], 1.0);
-        maxV = voiture->transform.modelMatrix*maxV;
-        // cout << "yooooo " << minV[0] <<" ; "<< minV[1] <<" ; "<< minV[2] <<" ; "<< maxV[0] <<" ; "<< maxV[1] <<" ; "<< maxV[2] <<" ; "<< endl;
-        vec3 vitesseBolide = Bolide.getSpeed() ;
+        maxV = voiture->transform.modelMatrix * maxV;
+        // cout<<"min = "<<minV.x<<endl ;
+        // cout<<"max = "<<maxV.x<<endl ;
+        //  cout << "yooooo " << minV[0] <<" ; "<< minV[1] <<" ; "<< minV[2] <<" ; "<< maxV[0] <<" ; "<< maxV[1] <<" ; "<< maxV[2] <<" ; "<< endl;
+        vec3 vitesseBolide = Bolide.getSpeed();
         vec3 vitesseAdv = voiture->getSpeed();
-        diff = vec3(advPosition.x - Cam->getPosition()[0], 0, advPosition.z); 
-        
-        if (((Bolide.getTurn()==1 && min.x < maxV.x)||(Bolide.getTurn()==2 && max.x > minV.x) || (Bolide.getTurn()==0 && min.x < maxV.x && max.x > minV.x))
-        &&(/* (advPosition[2]+max.z>-abs(maxV.z - minV.z)) */advPosition[2]+abs(maxV.z-minV.z)/2 > min.z) && (advPosition[2]+abs(maxV.z-minV.z)/2 < max.z)/*  && pilotePosition.z-BEpilote[7].z<advPosition.z+BEadv[0].z */)
+        diff = vec3(advPosition.x - Cam->getPosition()[0], 0, advPosition.z);
+        if (((Bolide.getTurn() == 1 && min.x < maxV.x) || (Bolide.getTurn() == 2 && max.x > minV.x) || (Bolide.getTurn() == 0 && min.x < maxV.x && max.x > minV.x)) && (/* (advPosition[2]+max.z>-abs(maxV.z - minV.z)) */ advPosition[2] + abs(maxV.z - minV.z) / 2 > min.z) && (advPosition[2] + abs(maxV.z - minV.z) / 2 < max.z) /*  && pilotePosition.z-BEpilote[7].z<advPosition.z+BEadv[0].z */)
         {
-            //std::cout<<"can I get some burgers "<<cvbhjn<<std::endl ;
-            cout<<min.z<<" ; "<<max.z<<" ou "<<minV.z<<" ; "<<maxV.z<<endl ;
-            cout<<"Position : "<<advPosition[2]<<endl ;
-            //cvbhjn++;
-            
-            Bolide.setSpeed(vec3(vitesseBolide[0], vitesseBolide[1], vitesseBolide[2]*0.01));
-            //planInfini.transform.Translate(vec3(diff.x, 0,0 ));
-            voiture->transform.Translate(diff);
-            diff*=-1;
-            //diff.z -= 0.5 ;
-            Bolide.transform.Translate(diff);
-            Cam->setPosition(Cam->getPosition()+diff) ;
-            voiture->setSpeed(vec3(vitesseAdv[0], vitesseAdv[1], vitesseAdv[2]*0.5));
-        }
-        
+            // std::cout<<"can I get some burgers "<<cvbhjn<<std::endl ;
+            // cout << min.z << " ; " << max.z << " ou " << minV.z << " ; " << maxV.z << endl;
+            // cout << "Position : " << advPosition[2] << endl;
 
+            // cvbhjn++;
+
+            Bolide.setSpeed(vec3(vitesseBolide[0], vitesseBolide[1], vitesseBolide[2] * 0.05));
+            // planInfini.transform.Translate(vec3(diff.x, 0,0 ));
+            voiture->transform.Translate(diff);
+            diff *= -1 / 2;
+            // diff.z -= 0.5 ;
+            Bolide.transform.Translate(diff);
+            Cam->setPosition(Cam->getPosition() + diff);
+            voiture->setSpeed(vec3(vitesseAdv[0], vitesseAdv[1], vitesseAdv[2] * 1.05));
+        }
     }
-    
 }
 
 void desseleration(Vehicule &car)
 {
 
     car.addSpeed(vec3(0, 0, -(0.005 * car.getSpeed().z * car.getSpeed().z)));
-
+    cout << "laaaaaaaaaaaaaaaaaa : " << car.getSpeed().z << endl;
     if (car.getSpeed().z < 0.1 && !car.getStop())
     {
         car.addSpeed(vec3(0, 0, 0.1));
@@ -955,4 +967,23 @@ void RandomAcceleration(Vehicule &car)
             car.setSpeed(vec3(0, 0, 2));
         }
     }
+}
+
+void vitesseAdv(Vehicule &pilote, Vehicule &adv)
+{
+    vec3 advPosition = adv.transform.t;
+    vec3 vitessePilote = pilote.getSpeed();
+    if (advPosition.z < -30 && vitessePilote.z>1.5)
+    {
+        adv.setSpeed(vec3(0, 0, vitessePilote.z + advPosition.z*0.00005));
+
+    }
+    // else if (advPosition.z > 10)
+    else if (advPosition.z > 1){
+        adv.setSpeed(vec3(0, 0, vitessePilote.z + 0.01));
+    }
+    // else
+    // {
+    //     adv.setSpeed(vec3(0, 0, vitessePilote.z));
+    // }
 }

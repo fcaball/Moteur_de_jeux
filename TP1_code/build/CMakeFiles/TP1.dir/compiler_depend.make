@@ -863,7 +863,7 @@ CMakeFiles/TP1.dir/common/objloader.cpp.o: ../common/objloader.cpp \
   ../external/assimp/include/assimp/Importer.hpp \
   ../external/assimp/include/assimp/types.h \
   ../external/assimp/include/assimp/defs.h \
-  ../external/assimp/include/assimp/config.h \
+  /usr/include/assimp/config.h \
   ../external/assimp/include/assimp/vector2.h \
   ../external/assimp/include/assimp/vector3.h \
   ../external/assimp/include/assimp/color4.h \
@@ -1658,8 +1658,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 
 ../external/assimp/include/assimp/vector2.h:
 
-../external/assimp/include/assimp/config.h:
-
 ../external/assimp/include/assimp/defs.h:
 
 /usr/include/c++/11/fstream:
@@ -2171,6 +2169,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
 
 /usr/include/c++/11/bits/locale_classes.h:
+
+/usr/include/assimp/config.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 

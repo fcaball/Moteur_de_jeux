@@ -390,7 +390,7 @@ int main(void)
     vector<vec3> boite = {{min.x, 0, min.z}, {max.x, 0, max.z}};
     Bolide.setBE(boite);
     cout << "BE = "
-         << "(" << BE[0][0] << " ; " << BE[0][1] << " ; " << BE[0][2] << ") ; (" << BE[1][0] << " ; " << BE[1][1] << " ; " << BE[1][02] << ") ; " << endl;
+         << "(" << BE[0][0] << " ; " << BE[0][1] << " ; " << BE[0][2] << ") ; (" << BE[1][0] << " ; " << BE[1][1] << " ; " << BE[1][2] << ") ; " << endl;
     do
     {
         // BEvoit1 = boiteEnglobante(voitvoit);
@@ -463,29 +463,29 @@ int main(void)
             trans = Bolide.getSpeed() * Cam->getFront();
             // centre = vec2(centre.x+trans.x, centre.y+trans.z);
             std::cout << Cam->getPosition()[0] << std::endl;
-            for (size_t i = 0; i < CivilCars.getChilds().size(); i++)
-            {
-                Vehicule *civilCar = dynamic_cast<Vehicule *>(CivilCars.getChilds()[i]);
+            //for (size_t i = 0; i < CivilCars.getChilds().size(); i++)
+            //{
+                //Vehicule *civilCar = dynamic_cast<Vehicule *>(CivilCars.getChilds()[i]);
                 // vector<vec3> BE = civilCar->getBE();
                 // vec4 min = vec4(BE[0], 1);
                 // min = civilCar->transform.modelMatrix * min;
                 // // vec4 max = vec4(BE[1], 1);
                 // // max = car.transform.modelMatrix*max;
                 // cout << "voir ici eheh : " << min.z << endl;
-                civilCar->transform.Translate(-(Bolide.getSpeed() * Cam->getFront()) + civilCar->getSpeed() * Cam->getFront());
+                //civilCar->transform.Translate(-(Bolide.getSpeed() * Cam->getFront()) + civilCar->getSpeed() * Cam->getFront());
                 // cout << civilCar->transform.t[0] << endl;
                 // if(min.z<-200){
                 // desseleration(*civilCar);
                 // RandomAcceleration(*civilCar);
                 // civilCar->setSpeed(Bolide.getSpeed());
                 //}
-                vitesseAdv(Bolide, *civilCar);
-            }
+                //vitesseAdv(Bolide, *civilCar);
+            //}
 
-            roueAvantGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            roueAvantDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            roueArriereGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            roueArriereDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            //roueAvantGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            //roueAvantDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            //roueArriereGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            //roueArriereDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
 
             desseleration(Bolide);
 

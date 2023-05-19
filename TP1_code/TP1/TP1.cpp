@@ -368,7 +368,7 @@ int main(void)
     // alSourceStop(source);
     BEvoit1 = voitvoit.boiteEnglobante();
     BEvoit2 = voitvoit3.boiteEnglobante();
-    BE = roueAvantGauche.boiteEnglobante();
+    BE = pneuAvantGauche.boiteEnglobante();
     vec4 min = vec4(BE[0], 1);
     min = Bolide.transform.modelMatrix * min;
     vec4 max = vec4(BE[1], 1);

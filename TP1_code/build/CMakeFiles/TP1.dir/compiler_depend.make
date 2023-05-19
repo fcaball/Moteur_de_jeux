@@ -860,10 +860,15 @@ CMakeFiles/TP1.dir/common/objloader.cpp.o: ../common/objloader.cpp \
   ../glm/detail/func_integer.hpp \
   ../glm/detail/func_integer.inl \
   ../common/objloader.hpp \
+  ../common/vboindexer.hpp \
+  ../common/texture.hpp \
+  ../external/glew-1.13.0/include/GL/glew.h \
+  /usr/include/GL/glu.h \
+  /usr/include/GL/gl.h \
   ../external/assimp/include/assimp/Importer.hpp \
   ../external/assimp/include/assimp/types.h \
   ../external/assimp/include/assimp/defs.h \
-  /usr/include/assimp/config.h \
+  ../external/assimp/include/assimp/config.h \
   ../external/assimp/include/assimp/vector2.h \
   ../external/assimp/include/assimp/vector3.h \
   ../external/assimp/include/assimp/color4.h \
@@ -1354,6 +1359,29 @@ CMakeFiles/TP1.dir/common/texture.cpp.o: ../common/texture.cpp \
   /usr/include/c++/11/bits/cxxabi_init_exception.h \
   /usr/include/c++/11/typeinfo \
   /usr/include/c++/11/bits/nested_exception.h \
+  /usr/include/c++/11/iostream \
+  /usr/include/c++/11/ostream \
+  /usr/include/c++/11/ios \
+  /usr/include/c++/11/bits/ios_base.h \
+  /usr/include/c++/11/bits/locale_classes.h \
+  /usr/include/c++/11/bits/locale_classes.tcc \
+  /usr/include/c++/11/system_error \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h \
+  /usr/include/c++/11/streambuf \
+  /usr/include/c++/11/bits/streambuf.tcc \
+  /usr/include/c++/11/bits/basic_ios.h \
+  /usr/include/c++/11/bits/locale_facets.h \
+  /usr/include/c++/11/cwctype \
+  /usr/include/wctype.h \
+  /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_base.h \
+  /usr/include/c++/11/bits/streambuf_iterator.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_inline.h \
+  /usr/include/c++/11/bits/locale_facets.tcc \
+  /usr/include/c++/11/bits/basic_ios.tcc \
+  /usr/include/c++/11/bits/ostream.tcc \
+  /usr/include/c++/11/istream \
+  /usr/include/c++/11/bits/istream.tcc \
   ../external/glfw-3.1.2/include/GLFW/glfw3.h
 
 CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
@@ -1657,6 +1685,8 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 ../external/assimp/contrib/utf8cpp/source/utf8.h:
 
 ../external/assimp/include/assimp/vector2.h:
+
+../external/assimp/include/assimp/config.h:
 
 ../external/assimp/include/assimp/defs.h:
 
@@ -2169,8 +2199,6 @@ CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp \
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
 
 /usr/include/c++/11/bits/locale_classes.h:
-
-/usr/include/assimp/config.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 

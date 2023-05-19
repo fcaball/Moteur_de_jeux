@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include "common/stb_image.h"
 #include <stdexcept>
+#include <iostream>
 
 #include <GLFW/glfw3.h>
 
@@ -289,3 +290,62 @@ unsigned char * getData(char * path, int &width, int &height, int &nChannels)
 {
 	return stbi_load( path, &width, &height, &nChannels, 0);
 }
+
+
+
+unsigned int load_texture_image(std::string file_name, bool& load_complete)
+	{
+		// stbi_set_flip_vertically_on_load(1); // Call this function if the image is upside-down.		
+ 
+		std::size_t position = file_name.find_last_of("\\");
+		file_name = "Images\\" + file_name.substr(position + 1);		
+ 
+		int width, height, num_components;
+		unsigned char* image_data = stbi_load(file_name.c_str(), &width, &height, &num_components, 0);
+ 
+		unsigned int textureID;
+		glGenTextures(1, &textureID);		
+ 
+		if (image_data)
+		{
+			GLenum format{};
+ 
+			if (num_components == 1)
+				format = GL_RED;
+			else if (num_components == 3)
+				format = GL_RGB;
+			else if (num_components == 4)
+				format = GL_RGBA;
+ 
+			glBindTexture(GL_TEXTURE_2D, textureID);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Recommended by NVIDIA Rep: https://devtalk.nvidia.com/default/topic/875205/opengl/how-does-gl_unpack_alignment-work-/
+ 
+			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image_data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+ 
+			// https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexParameter.xhtml
+			// ----------------------------------------------------------------------------------------------------------------
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT); // GL_REPEAT... GL_MIRRORED_REPEAT... GL_CLAMP_TO_EDGE... GL_CLAMP_TO_BORDER.
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+ 
+				// float border_colour[] = {0.45, 0.55, 0.95};
+				// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_colour); // For above when using: GL_CLAMP_TO_BORDER		
+ 
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // GL_NEAREST... GL_LINEAR... GL_NEAREST_MIPMAP_NEAREST (See above link for full list)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // GL_NEAREST or GL_LINEAR.
+ 
+			load_complete = true;
+			stbi_image_free(image_data);			
+			std::cout << "   Image loaded OK: " << file_name << "\n";
+		}
+		else
+		{
+			load_complete = false;
+			stbi_image_free(image_data);
+			std::cout << "   Image failed to load: " << file_name << "\n";
+		}
+		return textureID;
+	}
+

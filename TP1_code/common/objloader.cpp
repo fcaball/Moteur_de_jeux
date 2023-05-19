@@ -9,6 +9,8 @@
 #include <glm/glm.hpp>
 
 #include "objloader.hpp"
+#include "vboindexer.hpp"
+#include "texture.hpp"
 
 // Very, VERY simple OBJ loader.
 // Here is a short list of features a real function would provide :
@@ -122,6 +124,191 @@ bool loadOBJ(
     fclose(file);
     return true;
 }
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+struct Mesh
+	{
+		unsigned int VAO, VBO1, VBO2, VBO3, EBO; // Buffer handles (Typically type: GLuint is used)
+		
+		std::vector<glm::vec3> vert_positions;
+		std::vector<glm::vec3> vert_normals;
+		std::vector<glm::vec2> tex_coords;
+		std::vector<unsigned short> vert_indices;
+		unsigned int tex_handle;
+	};	
+ 
+
+struct Texture
+{
+    std::string image_name;
+    int textureID;
+};
+
+
+unsigned int num_meshes;
+std::vector<Mesh> mesh_list;
+std::vector<Texture> texture_list;
+int is_image_loaded(std::string file_name)
+{
+    for (unsigned int i = 0; i < texture_list.size(); ++i)
+        if (file_name.compare(texture_list[i].image_name) == 0)
+            return texture_list[i].textureID;
+    return -1;
+}
+
+void load_model(const char *path,
+                std::vector<unsigned short> &indices,
+               std::vector<glm::vec3> &vertices,
+               std::vector<glm::vec3> &normals,
+               std::vector<glm::vec2> &uvs)
+{
+
+    Assimp::Importer importer;
+    const aiScene *scene = nullptr;
+    scene = importer.ReadFile(path, aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_FlipUVs);
+
+    if (!scene || !scene->mRootNode || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
+        std::cout << "Assimp importer.ReadFile (Error) -- " << importer.GetErrorString() << "\n";
+    else
+    {
+        num_meshes = scene->mNumMeshes;
+        mesh_list.clear();
+        texture_list.clear();
+        mesh_list.resize(num_meshes);
+
+        aiMesh *mesh{};
+        int indices_offset = 0; // Not being used yet... i.e. indices_offset += mesh->mNumVertices; is commented further down.
+
+        // (1) Loop through all the model's meshes
+        // -----------------------------------------------------
+        for (unsigned int i = 0; i < num_meshes; ++i)
+        {
+            mesh = scene->mMeshes[i]; // http://assimp.sourceforge.net/lib_html/structai_mesh.html
+
+            aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex]; // http://assimp.sourceforge.net/lib_html/structai_material.html
+
+            // This loop will only run once (i.e. there's only 1 texture per mesh)
+            for (unsigned int tex_count = 0; tex_count < material->GetTextureCount(aiTextureType_DIFFUSE); ++tex_count) // Also, only using: aiTextureType_DIFFUSE.
+            {
+                aiString string;
+                material->GetTexture(aiTextureType_DIFFUSE, tex_count, &string); // Acquire the name of the image file to be loaded.
+
+                // (2) Load mesh [i]'s texture if not already loaded
+                // ---------------------------------------------------------------
+                int already_loaded = is_image_loaded(string.C_Str()); // Returns -1 if texture Not already loaded, otherwise returns Existing texture handle.
+
+                if (already_loaded == -1) // Image not yet loaded so now attempt to load it.
+                {
+                    bool load_success = false;
+                    unsigned int texture_handle = load_texture_image(string.C_Str(), load_success);
+
+                    if (load_success) // Although do nothing if the image fails to load.
+                    {
+                        Texture texture;
+                        texture.image_name = string.C_Str();
+                        texture.textureID = texture_handle;
+
+                        texture_list.push_back(texture);
+                        mesh_list[i].tex_handle = texture_handle;
+                    }
+                }
+                else
+                    mesh_list[i].tex_handle = already_loaded; // Assign existing texture handle.
+            }
+            // (3) Loop through all mesh [i]'s vertices
+            // ---------------------------------------------------
+            for (unsigned int i2 = 0; i2 < mesh->mNumVertices; ++i2)
+            {
+                glm::vec3 position{};
+                position.x = mesh->mVertices[i2].x;
+                position.y = mesh->mVertices[i2].y;
+                position.z = mesh->mVertices[i2].z;
+                mesh_list[i].vert_positions.push_back(position);
+
+                if (mesh->HasNormals())
+                {
+                    glm::vec3 normal{};
+                    normal.x = mesh->mNormals[i2].x;
+                    normal.y = mesh->mNormals[i2].y;
+                    normal.z = mesh->mNormals[i2].z;
+                    mesh_list[i].vert_normals.push_back(normal);
+                }
+                else
+                    mesh_list[i].vert_normals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+
+                if (mesh->HasTextureCoords(0)) // Only slot [0] is in question.
+                {
+                    glm::vec2 tex_coords{};
+                    tex_coords.x = mesh->mTextureCoords[0][i2].x;
+                    tex_coords.y = mesh->mTextureCoords[0][i2].y;
+                    mesh_list[i].tex_coords.push_back(tex_coords);
+                }
+                else
+                    mesh_list[i].tex_coords.push_back(glm::vec2(0.0f, 0.0f));
+            }
+            // (4) Loop through all mesh [i]'s Indices
+            // --------------------------------------------------
+            for (unsigned int i3 = 0; i3 < mesh->mNumFaces; ++i3)
+                for (unsigned int i4 = 0; i4 < mesh->mFaces[i3].mNumIndices; ++i4)
+                    mesh_list[i].vert_indices.push_back(mesh->mFaces[i3].mIndices[i4] + indices_offset);
+
+            // indices_offset += mesh->mNumVertices; // Disabled for tutorial: Model Loading (Part 1 of 3)
+
+            // set_buffer_data(i); // Set up: VAO, VBO and EBO.
+            indices.insert(indices.end(), mesh_list[i].vert_indices.begin(), mesh_list[i].vert_indices.end());
+            normals.insert(normals.end(), mesh_list[i].vert_normals.begin(), mesh_list[i].vert_normals.end());
+            vertices.insert(vertices.end(), mesh_list[i].vert_positions.begin(), mesh_list[i].vert_positions.end());
+            uvs.insert(uvs.end(), mesh_list[i].tex_coords.begin(), mesh_list[i].tex_coords.end());
+
+        }
+    }
+}
+
+void set_buffer_data(unsigned int index)
+	{
+		glGenVertexArrays(1, &mesh_list[index].VAO);
+		glGenBuffers(1, &mesh_list[index].VBO1); // Alternative to using 3 separate VBOs, instead use only 1 VBO and set glVertexAttribPointer's offset...
+		glGenBuffers(1, &mesh_list[index].VBO2); // like was done in tutorial 3... Orbiting spinning cubes.
+		glGenBuffers(1, &mesh_list[index].VBO3);
+		glGenBuffers(1, &mesh_list[index].EBO);
+ 
+		glBindVertexArray(mesh_list[index].VAO);		
+ 
+		// Vertex Positions
+		// ---------------------
+		glBindBuffer(GL_ARRAY_BUFFER, mesh_list[index].VBO1);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh_list[index].vert_positions.size(), &mesh_list[index].vert_positions[0], GL_STATIC_DRAW);
+		
+		glEnableVertexAttribArray(0); // Void pointer below is for legacy reasons. Two possible meanings: "offset for buffer objects" & "address for client state arrays"
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		
+		// Vertex Normals
+		// --------------------
+		glBindBuffer(GL_ARRAY_BUFFER, mesh_list[index].VBO2);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh_list[index].vert_normals.size(), &mesh_list[index].vert_normals[0], GL_STATIC_DRAW);
+ 
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+ 
+		// Texture Coordinates
+		// ---------------------------
+		glBindBuffer(GL_ARRAY_BUFFER, mesh_list[index].VBO3);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * mesh_list[index].tex_coords.size(), &mesh_list[index].tex_coords[0], GL_STATIC_DRAW);
+ 
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		
+		// Indices for: glDrawElements()
+		// ---------------------------------------
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_list[index].EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh_list[index].vert_indices.size(), &mesh_list[index].vert_indices[0], GL_STATIC_DRAW);
+ 
+		glBindVertexArray(0); 	// Unbind VAO
+	}
+ 
 
 bool loadOFF(const std::string &filename,
              std::vector<glm::vec3> &vertices,
@@ -337,28 +524,30 @@ bool loadOFF(const std::string &filename,
 #include <assimp/postprocess.h> // Post processing flags
 
 bool loadAssImp(
-        const char * path,
-        std::vector<unsigned short> & indices,
-        std::vector<glm::vec3> & vertices,
-        std::vector<glm::vec2> & uvs,
-        std::vector<glm::vec3> & normals
-        ){
+    const char *path,
+    std::vector<unsigned short> &indices,
+    std::vector<glm::vec3> &vertices,
+    std::vector<glm::vec2> &uvs,
+    std::vector<glm::vec3> &normals)
+{
     Assimp::Importer importer;
 
-    const aiScene* scene = importer.ReadFile(path, 0/*aiProcess_JoinIdenticalVertices | aiProcess_SortByPType*/);
+    const aiScene *scene = importer.ReadFile(path, 0 /*aiProcess_JoinIdenticalVertices | aiProcess_SortByPType*/);
 
-    if( !scene) {
-        fprintf( stderr, importer.GetErrorString());
+    if (!scene)
+    {
+        fprintf(stderr, importer.GetErrorString());
         getchar();
         return false;
     }
 
-    const aiMesh* mesh = scene->mMeshes[0]; // In this simple example code we always use the 1rst mesh (in OBJ files there is often only one anyway)
+    const aiMesh *mesh = scene->mMeshes[0]; // In this simple example code we always use the 1rst mesh (in OBJ files there is often only one anyway)
 
     // Fill vertices positions
     vertices.reserve(mesh->mNumVertices);
 
-    for(unsigned int i=0; i<mesh->mNumVertices; i++){
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    {
         aiVector3D pos = mesh->mVertices[i];
         vertices.push_back(glm::vec3(pos.x, pos.y, pos.z));
     }
@@ -375,14 +564,16 @@ bool loadAssImp(
 
     // Fill vertices normals
     normals.reserve(mesh->mNumVertices);
-    for(unsigned int i=0; i<mesh->mNumVertices; i++){
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    {
         aiVector3D n = mesh->mNormals[i];
         normals.push_back(glm::vec3(n.x, n.y, n.z));
     }
 
     // Fill face indices
-    indices.reserve(3*mesh->mNumFaces);
-    for (unsigned int i=0; i<mesh->mNumFaces; i++){
+    indices.reserve(3 * mesh->mNumFaces);
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+    {
         // Assume the model has only triangles.
         indices.push_back(mesh->mFaces[i].mIndices[0]);
         indices.push_back(mesh->mFaces[i].mIndices[1]);
@@ -393,43 +584,18 @@ bool loadAssImp(
 
     return true;
 }
-bool loadModel(const char* path,
-               std::vector<unsigned short>& indices,
-               std::vector<glm::vec3>& vertices,
-               std::vector<glm::vec3>& normals,
-               std::vector<glm::vec2>& uvs)
+
+bool loadModel(const char *path,
+               std::vector<unsigned short> &indices,
+               std::vector<glm::vec3> &vertices,
+               std::vector<glm::vec3> &normals,
+               std::vector<glm::vec2> &uvs)
 {
-    Assimp::Importer importer;
+    std::vector<glm::vec3> Intermediairevertices;
+    std::vector<glm::vec3> Intermediairenormals;
+    std::vector<glm::vec2> Intermediaireuvs;
+    if (loadOBJ(path, Intermediairevertices, Intermediaireuvs, Intermediairenormals))
+        indexVBO(Intermediairevertices, Intermediaireuvs, Intermediairenormals, indices, vertices, uvs, normals);
 
-    // Options de chargement
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
-
-    // Vérifier si le chargement a réussi
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        std::cout << "Erreur lors du chargement du modèle : " << importer.GetErrorString() << std::endl;
-        return false;
-    }
-
-    // Récupérer les données de vertex, de normales et d'UVs
-    for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-        aiMesh* mesh = scene->mMeshes[i];
-        for (unsigned int j = 0; j < mesh->mNumVertices; j++) {
-            vertices.push_back(glm::vec3(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z));
-            normals.push_back(glm::vec3(mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z));
-            if (mesh->mTextureCoords[0]) {
-                uvs.push_back(glm::vec2(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y));
-            } else {
-                uvs.push_back(glm::vec2(0.0f, 0.0f));
-            }
-        }
-
-        // Récupérer les indices
-        for (unsigned int j = 0; j < mesh->mNumFaces; j++) {
-            aiFace face = mesh->mFaces[j];
-            for (unsigned int k = 0; k < face.mNumIndices; k++) {
-                indices.push_back(face.mIndices[k]);
-            }
-        }
-    }
     return true;
 }

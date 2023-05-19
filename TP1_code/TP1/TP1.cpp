@@ -219,44 +219,73 @@ int main(void)
 
     Bolide.addChild(&roueDirectionnelleGauche);
     Bolide.addChild(&roueDirectionnelleDroite);
+    ObjectLoaded roueAvantGauche;
     ObjectLoaded pneuAvantGauche;
-    pneuAvantGauche.loadObject("./pneu.obj", 1);
+    pneuAvantGauche.loadObject("./pneu/PneuRoue.obj", 1);
     pneuAvantGauche.loadTexture("../textures/textPneu.jpg");
-    // pneuAvantGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
-    pneuAvantGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
-    roueDirectionnelleGauche.addChild(&pneuAvantGauche);
-    cout << "pneuAvantGauche : " << roueDirectionnelleGauche.transform.t[0] << endl;
+    roueAvantGauche.addChild(&pneuAvantGauche);
+
+    ObjectLoaded janteAvantGauche;
+    janteAvantGauche.loadObject("./pneu/jante.obj", 1);
+    janteAvantGauche.loadTexture("../textures/sun.jpg");
+    roueAvantGauche.addChild(&janteAvantGauche);
+
+    roueAvantGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
+    roueDirectionnelleGauche.addChild(&roueAvantGauche);
+    cout << "roueAvantGauche : " << roueDirectionnelleGauche.transform.t[0] << endl;
+
+    ObjectLoaded roueAvantDroite;
+    ObjectLoaded janteAvantDroite;
+    janteAvantDroite.loadObject("./pneu/jante.obj", 1);
+    janteAvantDroite.loadTexture("../textures/sun.jpg");
+    roueAvantDroite.addChild(&janteAvantDroite);
 
     ObjectLoaded pneuAvantDroit;
-    pneuAvantDroit.loadObject("./pneu.obj", 1);
+
+    pneuAvantDroit.loadObject("./pneu/PneuRoue.obj", 1);
     pneuAvantDroit.loadTexture("../textures/textPneu.jpg");
-    // pneuAvantDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
-    pneuAvantDroit.transform.Scale(vec3(0.5, 0.5, 0.5));
-    roueDirectionnelleDroite.addChild(&pneuAvantDroit);
-    cout << "pneuAvantDroit : " << roueDirectionnelleDroite.transform.t[0] << endl;
-    // translationPneuAVG = pneuAvantDroit.modifTranslationBis(translationPneuAVG, vec3(0.5,0.5,0.5));
-    // translationPneuAVD = pneuAvantGauche.modifTranslationBis(translationPneuAVD, vec3(0.5,0.5,0.5));
+    roueAvantDroite.addChild(&pneuAvantDroit);
 
+    roueAvantDroite.transform.Rotation(vec3(0, 1, 0), radians(180.0));
+    roueAvantDroite.transform.Scale(vec3(0.5, 0.5, 0.5));
+    roueDirectionnelleDroite.addChild(&roueAvantDroite);
+    cout << "roueAvantDroite : " << roueDirectionnelleDroite.transform.t[0] << endl;
+    translationPneuAVG = roueAvantDroite.modifTranslationBis(translationPneuAVG, vec3(0.5, 0.5, 0.5));
+    translationPneuAVD = roueAvantGauche.modifTranslationBis(translationPneuAVD, vec3(0.5, 0.5, 0.5));
+
+    ObjectLoaded roueArriereGauche;
     ObjectLoaded pneuArriereGauche;
-    pneuArriereGauche.loadObject("./pneu.obj", 1);
+    pneuArriereGauche.loadObject("./pneu/PneuRoue.obj", 1);
     pneuArriereGauche.loadTexture("../textures/textPneu.jpg");
-    pneuArriereGauche.transform.Translate(vec3(-1, 0, 0));
-    // pneuArriereGauche.transform.Rotation(vec3(0, 0, 1), radians(90.0));
-    pneuArriereGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
-    Bolide.addChild(&pneuArriereGauche);
+    roueArriereGauche.addChild(&pneuArriereGauche);
 
-    ObjectLoaded pneuArriereDroit;
-    pneuArriereDroit.loadObject("./pneu.obj", 1);
-    pneuArriereDroit.loadTexture("../textures/textPneu.jpg");
-    pneuArriereDroit.transform.Translate(vec3(1, 0, 0));
-    // pneuArriereDroit.transform.Rotation(vec3(0, 0, 1), radians(90.0));
-    pneuArriereDroit.transform.Scale(vec3(0.5, 0.5, 0.5));
-    Bolide.addChild(&pneuArriereDroit);
-    translationPneuARG = pneuArriereGauche.modifTranslation(translationPneuARG, vec3(-1, 0, 0));
-    translationPneuARD = pneuArriereDroit.modifTranslation(translationPneuARD, vec3(1, 0, 0));
+    ObjectLoaded janteArriereGauche;
+    janteArriereGauche.loadObject("./pneu/jante.obj", 1);
+    janteArriereGauche.loadTexture("../textures/sun.jpg");
+    roueArriereGauche.addChild(&janteArriereGauche);
+    roueArriereGauche.transform.Translate(vec3(-1, 0, 0));
+    roueArriereGauche.transform.Scale(vec3(0.5, 0.5, 0.5));
+    Bolide.addChild(&roueArriereGauche);
 
-    // translationPneuARG = pneuArriereGauche.modifTranslationBis(translationPneuARG, vec3(0.5,0.5,0.5));
-    // translationPneuARD = pneuArriereDroit.modifTranslationBis(translationPneuARD, vec3(0.5,0.5,0.5));
+    ObjectLoaded roueArriereDroite;
+    ObjectLoaded pneuArriereDroite;
+    pneuArriereDroite.loadObject("./pneu/PneuRoue.obj", 1);
+    pneuArriereDroite.loadTexture("../textures/textPneu.jpg");
+    roueArriereDroite.addChild(&pneuArriereDroite);
+
+    ObjectLoaded janteArriereDroite;
+    janteArriereDroite.loadObject("./pneu/jante.obj", 1);
+    janteArriereDroite.loadTexture("../textures/sun.jpg");
+    roueArriereDroite.addChild(&janteArriereDroite);
+    roueArriereDroite.transform.Translate(vec3(1, 0, 0));
+    roueArriereDroite.transform.Rotation(vec3(0, 1, 0), radians(180.0));
+    roueArriereDroite.transform.Scale(vec3(0.5, 0.5, 0.5));
+    Bolide.addChild(&roueArriereDroite);
+    translationPneuARG = roueArriereGauche.modifTranslation(translationPneuARG, vec3(-1, 0, 0));
+    translationPneuARD = roueArriereDroite.modifTranslation(translationPneuARD, vec3(1, 0, 0));
+
+    translationPneuARG = roueArriereGauche.modifTranslationBis(translationPneuARG, vec3(0.5, 0.5, 0.5));
+    translationPneuARD = roueArriereDroite.modifTranslationBis(translationPneuARD, vec3(0.5, 0.5, 0.5));
 
     float masseBolide = 2.1;
 
@@ -453,10 +482,10 @@ int main(void)
                 vitesseAdv(Bolide, *civilCar);
             }
 
-            pneuAvantGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            pneuAvantDroit.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            pneuArriereGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            pneuArriereDroit.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            roueAvantGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            roueAvantDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            roueArriereGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            roueArriereDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
 
             desseleration(Bolide);
 
@@ -645,7 +674,7 @@ void processInput(GLFWwindow *window)
             vec3 move = glm::normalize(glm::cross(Cam->getFront(), Cam->getUp())) * cameraSpeed;
             Bolide.transform.Translate(move);
             Cam->setPosition(Cam->getPosition() + move);
-            // cout<<"move : "<<Cam->getPosition()[0]<<endl ;
+            //  cout<<"move : "<<Cam->getPosition()[0]<<endl ;
             Bolide.setTurn(2);
         }
     }

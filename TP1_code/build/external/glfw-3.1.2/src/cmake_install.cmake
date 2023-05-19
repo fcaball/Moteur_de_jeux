@@ -1,4 +1,4 @@
-# Install script for directory: /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/external/glfw-3.1.2/src
+# Install script for directory: /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/external/glfw-3.1.2/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -43,6 +43,6 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/external/glfw-3.1.2/src/libglfw3.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/build/external/glfw-3.1.2/src/libglfw3.a")
 endif()
 

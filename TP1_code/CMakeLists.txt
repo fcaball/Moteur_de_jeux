@@ -64,7 +64,6 @@ add_executable(TP1
         TP1/ObjectPlan.hpp
         TP1/Vehicule.hpp
         TP1/Camera.hpp
-        TP1/Text.hpp
 	common/shader.cpp
 	common/shader.hpp
 	common/controls.cpp

@@ -14,6 +14,7 @@ private:
     vec3 up;
     vec3 right;
     vec3 front;
+    bool firstPerson;
 
 public:
     ~Camera();
@@ -23,16 +24,32 @@ public:
         this->position = position;
         this->target = target;
         this->direction = glm::normalize(this->position - this->target);
-
+        this->firstPerson = false;
         this->front = front;
         this->up = up;
         this->right = glm::normalize(glm::cross(this->up, this->direction));
     }
-    
+
+    bool getFirstPerson()
+    {
+        return this->firstPerson;
+    }
+
+    void setFirstPerson(bool b)
+    {
+        this->firstPerson = b;
+    }
+
     vec3 getDepPosition()
     {
         return Depposition;
     }
+
+     void setDepPosition(glm::vec3 pos)
+    {
+        Depposition = pos;
+    }
+
 
     vec3 getPosition()
     {
@@ -106,8 +123,8 @@ public:
     {
         if (this->parent)
         {
-            vec4 new_pos = this->parent->transform.modelMatrix * vec4(this->Depposition, 1.0);
-            this->transform.modelMatrix= this->parent->transform.modelMatrix ;
+            vec4 new_pos = this->parent->transform.modelMatrix * (vec4(this->Depposition, 1.0));
+            this->transform.modelMatrix = this->parent->transform.modelMatrix;
             this->position.x = new_pos.x;
             this->position.y = new_pos.y;
             this->position.z = new_pos.z;

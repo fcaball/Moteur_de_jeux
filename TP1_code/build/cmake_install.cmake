@@ -1,4 +1,4 @@
-# Install script for directory: /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code
+# Install script for directory: /home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/external/cmake_install.cmake")
+  include("/home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/build/external/cmake_install.cmake")
 
 endif()
 
@@ -56,5 +56,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/fabien/Documents/FDS/M1/Moteur_de_jeux/TP1_code/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

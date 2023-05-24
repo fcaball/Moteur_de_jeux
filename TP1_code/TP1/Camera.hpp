@@ -4,7 +4,7 @@
 #endif
 using namespace glm;
 
-class Camera 
+class Camera : public Object3D
 {
 private:
     vec3 Depposition;
@@ -23,14 +23,15 @@ public:
         this->position = position;
         this->target = target;
         this->direction = glm::normalize(this->position - this->target);
-        
+
         this->front = front;
         this->up = up;
         this->right = glm::normalize(glm::cross(this->up, this->direction));
     }
-
-    vec3 getDepPosition(){
-        return Depposition ;
+    
+    vec3 getDepPosition()
+    {
+        return Depposition;
     }
 
     vec3 getPosition()
@@ -93,6 +94,28 @@ public:
         up = u;
     }
 
-   
+    void draw(GLuint programID)
+    {
+        for (Object3D *child : children)
+        {
+            child->draw(programID);
+        }
+    }
+
+    void updateMeAndChilds()
+    {
+        if (this->parent)
+        {
+            vec4 new_pos = this->parent->transform.modelMatrix * vec4(this->Depposition, 1.0);
+            this->transform.modelMatrix= this->parent->transform.modelMatrix ;
+            this->position.x = new_pos.x;
+            this->position.y = new_pos.y;
+            this->position.z = new_pos.z;
+        }
+
+        for (auto &&child : children)
+        {
+            child->updateMeAndChilds();
+        }
+    }
 };
-  

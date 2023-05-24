@@ -7,6 +7,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/TP1.dir/common/objloader.cpp.o.d"
   "CMakeFiles/TP1.dir/common/shader.cpp.o"
   "CMakeFiles/TP1.dir/common/shader.cpp.o.d"
+  "CMakeFiles/TP1.dir/common/text2D.cpp.o"
+  "CMakeFiles/TP1.dir/common/text2D.cpp.o.d"
   "CMakeFiles/TP1.dir/common/texture.cpp.o"
   "CMakeFiles/TP1.dir/common/texture.cpp.o.d"
   "CMakeFiles/TP1.dir/common/vboindexer.cpp.o"

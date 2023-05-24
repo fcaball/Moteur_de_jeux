@@ -8,7 +8,6 @@ in vec2 o_uv0;
 uniform sampler2D text;
 in vec4 boundsAndheight;
 
-
 void main(){
 
         // if(boundsAndheight[3]<boundsAndheight[1]){
@@ -16,7 +15,7 @@ void main(){
         // }else if(boundsAndheight[3]<boundsAndheight[2]){
         //         color =texture(rock,o_uv0);
         // }else {
-           color =texture(text,o_uv0);
+        color =texture(text,o_uv0);
         // }
 
 }

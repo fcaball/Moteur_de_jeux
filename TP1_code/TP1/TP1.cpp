@@ -24,6 +24,7 @@ using namespace std;
 #include <common/vboindexer.hpp>
 #include <common/texture.hpp>
 #include <TP1/ObjectPlan.hpp>
+#include <TP1/Text.hpp>
 #include <TP1/Vehicule.hpp>
 #include <TP1/Camera.hpp>
 #include <pthread.h>
@@ -72,7 +73,7 @@ float pitch = 0.0f;
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 float fov = 45.0f;
-    ObjectLoaded testSphereSky;
+ObjectLoaded testSphereSky;
 
 bool orbitmode = false;
 bool presentationmode = false;
@@ -91,6 +92,7 @@ GLuint vertexbuffer;
 GLuint elementbuffer;
 GLuint uv;
 GLuint hmap;
+GLfloat fogColor[4] = {0.5f, 0.5f, 0.5f, 1.0f}; // Couleur du brouillard (R, G, B, A)
 
 float vitesse = 0.05;
 float rotateSpeed = 0.05;
@@ -114,12 +116,12 @@ void *updateFPS(void *params)
     }
 }
 
-void createVoiture(Vehicule &voiture)
+void createVoiture(Vehicule &voiture, int Joueur)
 {
     Object3D *roueDirectionnelleDroite = new Object3D();
-    ;
+
     Object3D *roueDirectionnelleGauche = new Object3D();
-    ;
+
     roueDirectionnelleDroite->transform.Translate(vec3(0.9, 0, -0.95));
     roueDirectionnelleGauche->transform.Translate(vec3(-0.9, 0, -0.95));
 
@@ -127,27 +129,27 @@ void createVoiture(Vehicule &voiture)
     voiture.addChild(roueDirectionnelleDroite);
     ObjectLoaded *roueAvantGauche = new ObjectLoaded();
     roueAvantGauche->loadObject("./pneu.obj", 1);
-    roueAvantGauche->loadTexture("../textures/textPneu.jpg");
+    roueAvantGauche->loadTexture("../textures/textRoue.png");
     roueAvantGauche->transform.Scale(vec3(0.4, 0.45, 0.45));
     roueDirectionnelleGauche->addChild(roueAvantGauche);
 
     ObjectLoaded *roueAvantDroite = new ObjectLoaded();
     roueAvantDroite->loadObject("./pneu.obj", 1);
-    roueAvantDroite->loadTexture("../textures/textPneu.jpg");
+    roueAvantDroite->loadTexture("../textures/textRoue.png");
     roueAvantDroite->transform.Rotation(vec3(0, 1, 0), radians(180.0));
     roueAvantDroite->transform.Scale(vec3(0.4, 0.45, 0.45));
     roueDirectionnelleDroite->addChild(roueAvantDroite);
 
     ObjectLoaded *roueArriereGauche = new ObjectLoaded();
     roueArriereGauche->loadObject("./pneu.obj", 1);
-    roueArriereGauche->loadTexture("../textures/textPneu.jpg");
+    roueArriereGauche->loadTexture("../textures/textRoue.png");
     roueArriereGauche->transform.Translate(vec3(-0.9, 0., 0.95));
     roueArriereGauche->transform.Scale(vec3(0.4, 0.45, 0.45));
     voiture.addChild(roueArriereGauche);
 
     ObjectLoaded *roueArriereDroite = new ObjectLoaded();
     roueArriereDroite->loadObject("./pneu.obj", 1);
-    roueArriereDroite->loadTexture("../textures/textPneu.jpg");
+    roueArriereDroite->loadTexture("../textures/textRoue.png");
     roueArriereDroite->transform.Translate(vec3(0.9, 0., 0.95));
     roueArriereDroite->transform.Rotation(vec3(0, 1, 0), radians(180.0));
     roueArriereDroite->transform.Scale(vec3(0.4, 0.45, 0.45));
@@ -155,7 +157,18 @@ void createVoiture(Vehicule &voiture)
 
     ObjectLoaded *carrosserie = new ObjectLoaded();
     carrosserie->loadObject("./pneu/Jeep.obj", 1);
-    carrosserie->loadTexture("../textures/sun.jpg");
+    if (Joueur == 0)
+    {
+        carrosserie->loadTexture("../textures/textJeepB.png");
+    }
+    else if (Joueur == 1)
+    {
+        carrosserie->loadTexture("../textures/textJeepG.png");
+    }
+    else
+    {
+        carrosserie->loadTexture("../textures/textJeepO.png");
+    }
     carrosserie->transform.Translate(vec3(0, -0.35, 0));
     carrosserie->transform.Scale(vec3(0.6, 0.6, 0.6));
     voiture.addChild(carrosserie);
@@ -223,10 +236,10 @@ int main(void)
     glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
     // Dark blue background
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
     // Enable depth test
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
@@ -258,11 +271,11 @@ int main(void)
     double lastTime = glfwGetTime();
     pthread_t thread;
 
-    // if (pthread_create(&thread, NULL, updateFPS, (void *)0) != 0)
-    // {
-    //     perror("erreur creation thread");
-    //     exit(1);
-    // }
+    if (pthread_create(&thread, NULL, updateFPS, (void *)0) != 0)
+    {
+        perror("erreur creation thread");
+        exit(1);
+    }
     // FT_Library ft;
     // FT_Face face;
 
@@ -283,20 +296,27 @@ int main(void)
 
     ////////////////NE PAS VENIR PLUS HAUT
 
-    Cam = new Camera(vec3(2.0f, 2.0f, 5.0f), vec3(), vec3(0, 1, 0), vec3(0, 0, -1));
+    Cam = new Camera(vec3(0.0f, 2.0f, 6.0f), vec3(), vec3(0, 1, 0), vec3(0, 0, -1));
     int ObjectState = 1;
+
+    Text t;
+    t.makeText("s");
+    t.transform.Translate(vec3(10, 9, -15));
+    // Cam->addChild(&t);
 
     Bolide.transform.Scale(vec3(1, 1, 1));
     Bolide.transform.Translate(vec3(2, 0, 0));
 
-    createVoiture(Bolide);
+    createVoiture(Bolide,0);
+    Bolide.addChild(Cam);
+
     Vehicule CivilCars;
     CivilCars.transform.Translate(vec3(-1, 0, 0));
 
     Vehicule voitvoit(169.0, 19.76);
     Vehicule voitvoit3(169.0, 19.76);
-    createVoiture(voitvoit);
-    createVoiture(voitvoit3);
+    createVoiture(voitvoit,1);
+    createVoiture(voitvoit3,2);
 
     CivilCars.addChild(&voitvoit);
     CivilCars.addChild(&voitvoit3);
@@ -369,48 +389,23 @@ int main(void)
     planInfini.addChild(&plan11);
     planInfini.addChild(&plan12);
 
-    ObjectPlan FrontWall;
-    FrontWall.makePlan(2, 2, 150, 77, 0, 0, 0, false);
-    FrontWall.loadTexture("../textures/skymapFront.png");
+    ObjectPlan brouillard;
+    brouillard.makePlan(2, 2, sizeX + 4, sizeY, (float)((sizeX + 4) / 2), 0, 0, false);
+    brouillard.loadTexture("../textures/brouillard.png");
+    brouillard.transform.Translate(vec3(0, sizeY - 1, -155));
+    brouillard.transform.Rotation(vec3(1, 0, 0), radians(90.0));
 
-    FrontWall.transform.Translate(vec3(-(float)(FrontWall.getsizeX() / 2.0), (float)FrontWall.getsizeY() - 1.01, -172));
-    FrontWall.transform.Rotation(vec3(1, 0, 0), radians(90.0));
-
-    ObjectPlan Ground;
-
-    Ground.makePlan(2, 2, 150, 172, 0, 0, 0, false);
-    Ground.loadTexture("../textures/skymapGround.png");
-    Ground.transform.Translate(vec3(-(float)(Ground.getsizeX() / 2.0), -1.01, -(float)(Ground.getsizeY())));
-
-    ObjectPlan LeftWall;
-
-    LeftWall.makePlan(2, 2, 150, 77, 0, 0, 0, false);
-    LeftWall.loadTexture("../textures/skymapRight.png");
-    LeftWall.transform.Translate(vec3(0, (float)LeftWall.getsizeY() - 1.01, -172));
-    LeftWall.transform.Rotation(vec3(1, 0, 0), radians(90.0));
-    LeftWall.transform.Rotation(vec3(0, 0, 1), radians(-90.0));
-    LeftWall.transform.Translate(vec3(-LeftWall.getsizeX(), (float)(Ground.getsizeX() / 2), 0));
-
-    ObjectPlan RightWall;
-
-    RightWall.makePlan(2, 2, 150, 77, 0, 0, 0, false);
-    RightWall.loadTexture("../textures/skymapLeft.png");
-    RightWall.transform.Translate(vec3(0, (float)RightWall.getsizeY() - 1.01, -172));
-    RightWall.transform.Rotation(vec3(1, 0, 0), radians(90.0));
-    RightWall.transform.Rotation(vec3(0, 0, 1), radians(-90.0));
-    RightWall.transform.Translate(vec3(-RightWall.getsizeX(), -(float)(Ground.getsizeX() / 2), 0));
-
-
-    testSphereSky.loadObject("./sphere.off",0);
+    testSphereSky.loadObject("./sphere.off", 0);
     testSphereSky.loadTexture("../textures/spheremap.jpg");
-    testSphereSky.transform.Scale(vec3(100,100,100));
+    testSphereSky.transform.Scale(vec3(160, 160, 160));
+    testSphereSky.transform.Rotation(vec3(0, 1, 0), radians(-21.0));
     Object3D racine;
 
     racine.addChild(&planInfini);
     racine.addChild(&Bolide);
     racine.addChild(&CivilCars);
     racine.addChild(&testSphereSky);
-    // racine.addChild(&FrontWall);
+    // racine.addChild(&brouillard);
     // racine.addChild(&Ground);
     // racine.addChild(&LeftWall);
     // racine.addChild(&RightWall);
@@ -458,6 +453,12 @@ int main(void)
     // cout << "BE = "
     //      << "(" << BE[0][0] << " ; " << BE[0][1] << " ; " << BE[0][2] << ") ; (" << BE[1][0] << " ; " << BE[1][1] << " ; " << BE[1][2] << ") ; " << endl;
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_FOG);
+    glFogi(GL_FOG_MODE, GL_LINEAR);
+    glFogf(GL_FOG_START, 10.0f);
+    glFogf(GL_FOG_END, 50.0f);
+    glFogfv(GL_FOG_COLOR, fogColor);
     do
     {
 
@@ -481,26 +482,12 @@ int main(void)
 
         // Use our shader
         glUseProgram(programID);
-
-        /*****************TODO***********************/
-        // Model matrix : an identity matrix (model will be at the origin) then change
-
-        // View matrix : camera/view transformation lookat() utiliser cameraFree_position cameraFree_target cameraFree_up
-        // LIBRE
-
-        if (freemode)
-        {
-
-            viewMatrix = glm::lookAt(Cam->getPosition(), Cam->getPosition() + Cam->getFront(), Cam->getUp());
-        }
-
-        // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-        projMatrix = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 200.0f);
-
-        // Send our transformation to the currently bound shader,
-        // in the "Model View Projection" to the shader uniforms
-        glUniformMatrix4fv(glGetUniformLocation(programID, "viewM"), 1, GL_FALSE, &viewMatrix[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(programID, "projM"), 1, GL_FALSE, &projMatrix[0][0]);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_FOG);
+        glFogi(GL_FOG_MODE, GL_LINEAR);
+        glFogf(GL_FOG_START, -10.0f);
+        glFogf(GL_FOG_END, -50.0f);
+        glFogfv(GL_FOG_COLOR, fogColor);
 
         // // MOUVEMENT
         // if (letsgo)
@@ -545,26 +532,35 @@ int main(void)
                 // // vec4 max = vec4(BE[1], 1);
                 // // max = car.transform.modelMatrix*max;
                 // cout << "voir ici eheh : " << min.z << endl;
-                civilCar->transform.Translate((-(Bolide.getSpeed() * Cam->getFront())) + civilCar->getSpeed() * Cam->getFront());
-                // cout << civilCar->transform.t[0] << endl;
-                // if(min.z<-200){
-                desseleration(*civilCar);
-                ////////////RandomAcceleration(*civilCar);
-                // civilCar->setSpeed(Bolide.getSpeed());
-                //}
-                vitesseAdv(Bolide, *civilCar);
-                v(*civilCar, 1.5);
+                if (!civilCar->getStop())
+                {
+                    civilCar->transform.Translate((-(Bolide.getSpeed() * Cam->getFront())) + civilCar->getSpeed() * Cam->getFront());
+                    // cout << civilCar->transform.t[0] << endl;
+                    // if(min.z<-200){
+                    desseleration(*civilCar);
+                    ////////////RandomAcceleration(*civilCar);
+                    // civilCar->setSpeed(Bolide.getSpeed());
+                    //}
+                    civilCar->getChilds()[0]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+                    civilCar->getChilds()[1]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+                    civilCar->getChilds()[2]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+                    civilCar->getChilds()[3]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+                    vitesseAdv(Bolide, *civilCar);
+                    v(*civilCar, 1.5);
+                }
+                else
+                {
+                    civilCar->transform.Translate((-(Bolide.getSpeed() * Cam->getFront())));
+                }
                 // cout << Bolide.getSpeed().z << endl;
                 // cout << Bolide.getVMax() << endl;
             }
             aspiration(CivilCars, Bolide);
             depassement(CivilCars, Bolide);
 
-            /// A REMETTRE
-            // roueAvantGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            // roueAvantDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            // roueArriereGauche.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
-            // roueArriereDroite.transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            Bolide.getChilds()[3]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+            Bolide.getChilds()[2]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
+
             // aspiration(CivilCars, Bolide);
             desseleration(Bolide);
             // v(Bolide);
@@ -582,7 +578,19 @@ int main(void)
 
         crash(CivilCars, Bolide);
 
+        // On actualise tout notre graphe de scène
         racine.updateMeAndChilds();
+
+        // Puis on définit les caractériqtiques de notre caméra pour éviter
+        viewMatrix = glm::lookAt(Cam->getPosition(), Cam->getPosition() + Cam->getFront(), Cam->getUp());
+
+        // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+        projMatrix = glm::perspective(glm::radians(45.f), 4.0f / 3.0f, 0.1f, 250.0f);
+
+        // Send our transformation to the currently bound shader,
+        // in the "Model View Projection" to the shader uniforms
+        glUniformMatrix4fv(glGetUniformLocation(programID, "viewM"), 1, GL_FALSE, &viewMatrix[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(programID, "projM"), 1, GL_FALSE, &projMatrix[0][0]);
 
         racine.draw(programID);
 
@@ -701,7 +709,7 @@ int main(void)
     return 0;
 }
 
-float angleSM=0;
+float angleSM = 0;
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
@@ -741,7 +749,6 @@ void processInput(GLFWwindow *window)
         {
             vec3 move = glm::normalize(glm::cross(Cam->getFront(), Cam->getUp())) * (10 * deltaTime);
             Bolide.transform.Translate(-move);
-            Cam->setPosition(Cam->getPosition() - move);
             // cout<<"move : "<<Cam->getPosition()[0]<<endl ;
             Bolide.setTurn(1);
         }
@@ -753,7 +760,6 @@ void processInput(GLFWwindow *window)
         {
             vec3 move = glm::normalize(glm::cross(Cam->getFront(), Cam->getUp())) * (10 * deltaTime);
             Bolide.transform.Translate(move);
-            Cam->setPosition(Cam->getPosition() + move);
             //  cout<<"move : "<<Cam->getPosition()[0]<<endl ;
             Bolide.setTurn(2);
         }
@@ -762,11 +768,6 @@ void processInput(GLFWwindow *window)
     if (!(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS))
     {
         Bolide.setTurn(0);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
-    {
-        Cam->getPosition() += vec3(0, 10, 0);
     }
 
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
@@ -795,17 +796,16 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
     {
-        testSphereSky.transform.Rotation(vec3(0,1,0),radians(-1.0));
-        angleSM-=5.0;
-        cout<<angleSM<<endl;
-        
+        testSphereSky.transform.Rotation(vec3(0, 1, 0), radians(-1.0));
+        angleSM -= 1.0;
+        cout << angleSM << endl;
     }
 
-     if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
     {
-        testSphereSky.transform.Rotation(vec3(0,1,0),radians(1.0));
-        angleSM+=5.0;
-        cout<<angleSM<<endl;
+        testSphereSky.transform.Rotation(vec3(0, 1, 0), radians(1.0));
+        angleSM += 1.0;
+        cout << angleSM << endl;
     }
 
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
@@ -1144,51 +1144,54 @@ void aspiration(Object3D &CivilCar, Vehicule &voit)
     vec3 vitesseRelative;
     for (size_t i = 0; i < taille; i++)
     {
-        voiture1 = dynamic_cast<Vehicule *>(childs[i]);
-        BEvoit1 = voiture1->getBE();
-        vitesse1 = voiture1->getSpeed();
-        minvoit1 = vec4(BEvoit1[0], 1.0);
-        minvoit1 = voiture1->transform.modelMatrix * minvoit1;
-        maxvoit1 = vec4(BEvoit1[1], 1.0);
-        maxvoit1 = voiture1->transform.modelMatrix * maxvoit1;
-        
-        for (int j = 0; j < taille; j++)
-        {
-            if (j > i)
-            {
-                
-                voiture2 = dynamic_cast<Vehicule *>(childs[j]);
-                //voiture2->addSpeed(vec3(0,0,0.0001));
-                BEvoit2 = voiture2->getBE();
-                vitesse2 = voiture2->getSpeed();
-                minvoit2 = vec4(BEvoit2[0], 1.0);
-                minvoit2 = voiture2->transform.modelMatrix * minvoit2;
-                maxvoit2 = vec4(BEvoit2[1], 1.0);
-                maxvoit2 = voiture2->transform.modelMatrix * maxvoit2;
-                vitesseRelative = vitesse1 - vitesse2;
-                //cout << vitesseRelative.z << endl;
-                // cout<<"position centrale : "<<(maxvoit1.x+minvoit1.x)/2<<endl ;
-                /* cout<<"minVoit2 x : "<<minvoit2.x<<endl ;
-                cout<<"minVoit1 x : "<<minvoit1.x<<endl ;
-                cout<<"maxVoit2 x : "<<maxvoit2.x<<endl ;
-                cout<<"maxVoit1 z : "<<maxvoit1.x<<endl ; */
-                if ((minvoit1.x >= minvoit2.x && minvoit1.x <= maxvoit2.x && minvoit1.z >= minvoit2.z && minvoit1.z <= maxvoit2.z) || (maxvoit1.x >= minvoit2.x && maxvoit1.x <= maxvoit2.x && minvoit1.z >= minvoit2.z && minvoit1.z <= maxvoit2.z) ||
-                    (minvoit1.x >= minvoit2.x && minvoit1.x <= maxvoit2.x && maxvoit1.z >= minvoit2.z && maxvoit1.z <= maxvoit2.z) || (maxvoit1.x >= minvoit2.x && maxvoit1.x <= maxvoit2.x && maxvoit1.z >= minvoit2.z && maxvoit1.z <= maxvoit2.z))
-                {
-                    cout << "CRASH     !!! " << endl;
-                    if (vitesseRelative.z > 0)
-                    {
-                        voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.98*vitesse1.z));
-                        voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.96*vitesse2.z));
 
-                    }
-                    if (vitesseRelative.z < 0)
+        voiture1 = dynamic_cast<Vehicule *>(childs[i]);
+        if (!voiture1->getStop())
+        {
+            BEvoit1 = voiture1->getBE();
+            vitesse1 = voiture1->getSpeed();
+            minvoit1 = vec4(BEvoit1[0], 1.0);
+            minvoit1 = voiture1->transform.modelMatrix * minvoit1;
+            maxvoit1 = vec4(BEvoit1[1], 1.0);
+            maxvoit1 = voiture1->transform.modelMatrix * maxvoit1;
+
+            for (int j = 0; j < taille; j++)
+            {
+                if (j > i)
+                {
+
+                    voiture2 = dynamic_cast<Vehicule *>(childs[j]);
+                    // voiture2->addSpeed(vec3(0,0,0.0001));
+                    BEvoit2 = voiture2->getBE();
+                    vitesse2 = voiture2->getSpeed();
+                    minvoit2 = vec4(BEvoit2[0], 1.0);
+                    minvoit2 = voiture2->transform.modelMatrix * minvoit2;
+                    maxvoit2 = vec4(BEvoit2[1], 1.0);
+                    maxvoit2 = voiture2->transform.modelMatrix * maxvoit2;
+                    vitesseRelative = vitesse1 - vitesse2;
+                    // cout << vitesseRelative.z << endl;
+                    //  cout<<"position centrale : "<<(maxvoit1.x+minvoit1.x)/2<<endl ;
+                    /* cout<<"minVoit2 x : "<<minvoit2.x<<endl ;
+                    cout<<"minVoit1 x : "<<minvoit1.x<<endl ;
+                    cout<<"maxVoit2 x : "<<maxvoit2.x<<endl ;
+                    cout<<"maxVoit1 z : "<<maxvoit1.x<<endl ; */
+                    if ((minvoit1.x >= minvoit2.x && minvoit1.x <= maxvoit2.x && minvoit1.z >= minvoit2.z && minvoit1.z <= maxvoit2.z) || (maxvoit1.x >= minvoit2.x && maxvoit1.x <= maxvoit2.x && minvoit1.z >= minvoit2.z && minvoit1.z <= maxvoit2.z) ||
+                        (minvoit1.x >= minvoit2.x && minvoit1.x <= maxvoit2.x && maxvoit1.z >= minvoit2.z && maxvoit1.z <= maxvoit2.z) || (maxvoit1.x >= minvoit2.x && maxvoit1.x <= maxvoit2.x && maxvoit1.z >= minvoit2.z && maxvoit1.z <= maxvoit2.z))
                     {
-                        voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.98*vitesse2.z));
-                        voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.96*vitesse1.z));
+                        cout << "CRASH     !!! " << endl;
+                        if (vitesseRelative.z > 0)
+                        {
+                            voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.98 * vitesse1.z));
+                            voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.96 * vitesse2.z));
+                        }
+                        if (vitesseRelative.z < 0)
+                        {
+                            voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.98 * vitesse2.z));
+                            voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.96 * vitesse1.z));
+                        }
+                        /*voiture1->addSpeed(vec3(0,0,0.001));
+                        cout<<vitesse1.z<<" et "<<vitesse2.z<<endl ; */
                     }
-                    /*voiture1->addSpeed(vec3(0,0,0.001));
-                    cout<<vitesse1.z<<" et "<<vitesse2.z<<endl ; */
                 }
             }
         }
@@ -1205,65 +1208,154 @@ void depassement(Object3D &CivilCar, Vehicule &voit)
     vec4 minvoit1, minvoit2, maxvoit1, maxvoit2;
     vec3 vitesse1, vitesse2;
     vec3 vitesseRelative;
+    vector<glm::vec3> BEpilote = voit.getBE();
+
+    // cout << "BE = "
+    //<< "(" << BEpilote[0][0] << " ; " << BEpilote[0][1] << " ; " << BEpilote[0][2] << ") ; (" << BEpilote[1][0] << " ; " << BEpilote[1][1] << " ; " << BEpilote[1][2] << ") ; " << endl;
+    vec4 minPilote = vec4(BEpilote[0], 1);
+    minPilote = voit.transform.modelMatrix * minPilote;
+    vec4 maxPilote = vec4(BEpilote[1], 1);
+    maxPilote = voit.transform.modelMatrix * maxPilote;
     for (size_t i = 0; i < taille; i++)
     {
         voiture1 = dynamic_cast<Vehicule *>(childs[i]);
-        BEvoit1 = voiture1->getBE();
-        vitesse1 = voiture1->getSpeed();
-        minvoit1 = vec4(BEvoit1[0], 1.0);
-        minvoit1 = voiture1->transform.modelMatrix * minvoit1;
-        maxvoit1 = vec4(BEvoit1[1], 1.0);
-        maxvoit1 = voiture1->transform.modelMatrix * maxvoit1;
-        
-        for (int j = 0; j < taille; j++)
+        if (!voiture1->getStop())
         {
-            if (j < i)
+            BEvoit1 = voiture1->getBE();
+            vitesse1 = voiture1->getSpeed();
+            minvoit1 = vec4(BEvoit1[0], 1.0);
+            minvoit1 = voiture1->transform.modelMatrix * minvoit1;
+            maxvoit1 = vec4(BEvoit1[1], 1.0);
+            maxvoit1 = voiture1->transform.modelMatrix * maxvoit1;
+            if (maxvoit1.z < -170)
             {
-                
-                voiture2 = dynamic_cast<Vehicule *>(childs[j]);
-                //voiture2->addSpeed(vec3(0,0,0.0001));
-                BEvoit2 = voiture2->getBE();
-                vitesse2 = voiture2->getSpeed();
-                minvoit2 = vec4(BEvoit2[0], 1.0);
-                minvoit2 = voiture2->transform.modelMatrix * minvoit2;
-                maxvoit2 = vec4(BEvoit2[1], 1.0);
-                maxvoit2 = voiture2->transform.modelMatrix * maxvoit2;
-                vitesseRelative = vitesse1 - vitesse2;
-                //cout << vitesseRelative.z << endl;
-                // cout<<"position centrale : "<<(maxvoit1.x+minvoit1.x)/2<<endl ;
-                /* cout<<"minVoit2 x : "<<minvoit2.x<<endl ;
-                cout<<"minVoit1 x : "<<minvoit1.x<<endl ;
-                cout<<"maxVoit2 x : "<<maxvoit2.x<<endl ;
-                cout<<"maxVoit1 z : "<<maxvoit1.x<<endl ; */
-                if ((minvoit1.x + maxvoit1.x)/2>minvoit2.x && (minvoit1.x+maxvoit1.x)/2<maxvoit2.x && minvoit1.z > maxvoit2.z+20 && minvoit1.z < maxvoit1.z-70)
+                voiture1->setSpeed(vec3(0, 0, 0));
+            }
+            if (maxvoit1.z > 15)
+            {
+                voiture1->addSpeed(vec3(0, 0, 0.01));
+            }
+            // cout << "iciiiiiiiii : " << maxvoit1.z << endl;
+            for (int j = 0; j < taille; j++)
+            {
+                if (j < i)
                 {
-                    cout << "ASPIRATION IAAAAA     !!! " << endl;
-                    voiture1->addSpeed(vec3(0,0,0.0001));
-                    /* if (vitesseRelative.z > 0)
-                    {
-                        voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.98*vitesse1.z));
-                        voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.96*vitesse2.z));
 
+                    voiture2 = dynamic_cast<Vehicule *>(childs[j]);
+                    // voiture2->addSpeed(vec3(0,0,0.0001));
+                    BEvoit2 = voiture2->getBE();
+                    vitesse2 = voiture2->getSpeed();
+                    minvoit2 = vec4(BEvoit2[0], 1.0);
+                    minvoit2 = voiture2->transform.modelMatrix * minvoit2;
+                    maxvoit2 = vec4(BEvoit2[1], 1.0);
+                    maxvoit2 = voiture2->transform.modelMatrix * maxvoit2;
+                    vitesseRelative = vitesse1 - vitesse2;
+                    // cout << vitesseRelative.z << endl;
+                    //  cout<<"position centrale : "<<(maxvoit1.x+minvoit1.x)/2<<endl ;
+                    /* cout<<"minVoit2 z : "<<minvoit2.z<<endl ;
+                    cout<<"maxVoit2 z : "<<maxvoit2.z<<endl ;
+                    cout<<"minVoit1 z : "<<minvoit1.z<<endl ;
+                    cout<<"maxVoit1 z : "<<maxvoit1.z<<endl ; */
+                    /* cout << "minVoit2 z : " << minvoit2.z << endl;
+                        cout << "maxVoit2 z : " << maxvoit2.z << endl;
+                        cout << "minVoit1 z : " << minvoit1.z << endl;
+                        cout << "maxVoit1 z : " << maxvoit1.z << endl; */
+                    if ((minvoit1.x + maxvoit1.x) / 2 > minvoit2.x && (minvoit1.x + maxvoit1.x) / 2 < maxvoit2.x && maxvoit1.z > minvoit2.z + 50 /*&& minvoit1.z < maxvoit2.z+70 */)
+                    {
+                        cout << "ASPIRATION IAAAAA     !!! " << endl;
+                        voiture1->addSpeed(vec3(0, 0, 0.001));
+                        /* if (vitesseRelative.z > 0)
+                        {
+                            voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.98*vitesse1.z));
+                            voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.96*vitesse2.z));
+
+                        }
+                        if (vitesseRelative.z < 0)
+                        {
+                            voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.98*vitesse2.z));
+                            voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.96*vitesse1.z));
+                        } */
+                        /*voiture1->addSpeed(vec3(0,0,0.001));
+                        cout<<vitesse1.z<<" et "<<vitesse2.z<<endl ; */
                     }
-                    if (vitesseRelative.z < 0)
+                    if ((minvoit2.x + maxvoit2.x) / 2 < 0 && minvoit1.x < maxvoit2.x + 1 && maxvoit1.z < minvoit2.z + 50 && minvoit1.z > maxvoit2.z)
                     {
-                        voiture2->setSpeed(vec3(vitesse2.x, vitesse2.y, 0.98*vitesse2.z));
-                        voiture1->setSpeed(vec3(vitesse1.x, vitesse1.y, 0.96*vitesse1.z));
-                    } */
-                    /*voiture1->addSpeed(vec3(0,0,0.001));
-                    cout<<vitesse1.z<<" et "<<vitesse2.z<<endl ; */
-                }
-                if ((minvoit2.x + maxvoit2.x)/2>0 && maxvoit1.x>minvoit2.x && minvoit1.z > maxvoit2.z+20 && minvoit1.z < maxvoit2.z)
-                {
-                    cout << "DANGEEER    !!! " << endl;
-                    voiture1->addSpeed(vec3(0,0,0.0001));
-                }
+                        /* cout << "DANGEEER    !!! " << endl;
+                        cout << "minVoit2 z : " << minvoit2.z << endl;
+                        cout << "maxVoit2 z : " << maxvoit2.z << endl;
+                        cout << "minVoit1 z : " << minvoit1.z << endl;
+                        cout << "maxVoit1 z : " << maxvoit1.z << endl; */
+                        if (minPilote.z - 10 > maxvoit1.z)
+                        {
+                            voiture1->transform.Translate(vec3(0.02, 0, 0));
+                            voiture1->addSpeed(vec3(0, 0, 0.001));
 
+                            // cout << voiture1->transform.t.x << endl;
+                        }
+                    }
+                    if ((minvoit2.x + maxvoit2.x) / 2 > 0 && maxvoit1.x > minvoit2.x - 1 && maxvoit1.z < minvoit2.z + 50 && minvoit1.z > maxvoit2.z)
+                    {
+                        cout << "DANGEEER    !!! " << endl;
+                        /*cout << "minVoit2 z : " << minvoit2.z << endl;
+                        cout << "maxVoit2 z : " << maxvoit2.z << endl;
+                        cout << "minVoit1 z : " << minvoit1.z << endl;
+                        cout << "maxVoit1 z : " << maxvoit1.z << endl; */
+                        if (minPilote.z - 10 > maxvoit1.z)
+                        {
+                            voiture1->transform.Translate(vec3(-0.02, 0, 0));
+                            voiture1->addSpeed(vec3(0, 0, 0.001));
+
+                            // cout << voiture1->transform.t.x << endl;
+                        }
+                    }
+                }
+            }
+            voiture2 = &Bolide;
+            BEvoit2 = voiture2->getBE();
+            vitesse2 = voiture2->getSpeed();
+            minvoit2 = vec4(BEvoit2[0], 1.0);
+            minvoit2 = voiture2->transform.modelMatrix * minvoit2;
+            maxvoit2 = vec4(BEvoit2[1], 1.0);
+            maxvoit2 = voiture2->transform.modelMatrix * maxvoit2;
+            cout << "minVoit2 z BOLIDE : " << minvoit2.z << endl;
+            cout << "maxVoit2 z BOLIDE : " << maxvoit2.z << endl;
+            cout << "minVoit1 z : " << minvoit1.z << endl;
+            cout << "maxVoit1 z : " << maxvoit1.z << endl;
+            if ((minPilote.x + maxPilote.x) / 2 < 0 && minvoit1.x < maxPilote.x + 1 && maxvoit1.z < minPilote.z + 50 && minvoit1.z > maxPilote.z)
+            {
+                cout << "DANGEEER    !!! " << endl;
+
+                // if (minPilote.z - 10 > maxvoit1.z)
+                // {
+                voiture1->transform.Translate(vec3(0.02, 0, 0));
+                voiture1->addSpeed(vec3(0, 0, 0.001));
+
+                // cout << voiture1->transform.t.x << endl;
+                //}
+            }
+            if ((minPilote.x + maxPilote.x) / 2 > 0 && maxvoit1.x > minPilote.x - 1 && maxvoit1.z < minPilote.z + 50 && minvoit1.z > maxPilote.z)
+            {
+                cout << "DANGEEER    !!! " << endl;
+                /* cout << "minVoit2 z : " << minvoit2.z << endl;
+                cout << "maxVoit2 z : " << maxvoit2.z << endl;
+                cout << "minVoit1 z : " << minvoit1.z << endl;
+                cout << "maxVoit1 z : " << maxvoit1.z << endl; */
+                // if (minPilote.z - 10 > maxvoit1.z)
+                // {
+                voiture1->transform.Translate(vec3(-0.02, 0, 0));
+                voiture1->addSpeed(vec3(0, 0, 0.001));
+
+                // cout << voiture1->transform.t.x << endl;
+                // }
+            }
+            if (minvoit1.x < -9 || maxvoit1.x > 9)
+            {
+                voiture1->setStop(true);
             }
         }
+        /*  */
     }
 }
-
 
 void vitesseAdv(Vehicule &pilote, Vehicule &adv)
 {
@@ -1277,6 +1369,15 @@ void vitesseAdv(Vehicule &pilote, Vehicule &adv)
     min = adv.transform.modelMatrix * min;
     vec4 max = vec4(BEadv[1], 1);
     max = adv.transform.modelMatrix * max;
+    vec3 positionPilote = pilote.transform.t;
+    vector<glm::vec3> BE = pilote.getBE();
+    // cout << "BE = "
+    //<< "(" << BEpilote[0][0] << " ; " << BEpilote[0][1] << " ; " << BEpilote[0][2] << ") ; (" << BEpilote[1][0] << " ; " << BEpilote[1][1] << " ; " << BEpilote[1][2] << ") ; " << endl;
+    /* vec4 minPilote = vec4(BE[0], 1);
+    minPilote = pilote.transform.modelMatrix * minPilote;
+    vec4 maxPilote = vec4(BE[1], 1);
+    maxPilote = pilote.transform.modelMatrix * maxPilote;
+    cout<<minPilote.x<<" ; "<<maxPilote.x<<endl ; */
     // cout << "RIEN : " << adv.getSpeed().z << endl;
     if (advPosition.z < -100 && vitessePilote.z > 0.8)
     {
@@ -1288,7 +1389,7 @@ void vitesseAdv(Vehicule &pilote, Vehicule &adv)
     {
         // cout << "DIMINUTION DE LA VITESSE !" << endl;
         // cout << "ehehehehe : " << advPosition.z << endl;
-        adv.setSpeed(vec3(0, 0, vitessePilote.z + 0.01));
+        adv.setSpeed(vec3(0, 0, vitessePilote.z + 0.1));
     }
     if (advPosition.z < 0 && advPosition.z > -100 && Cam->getPosition().x > min.x && Cam->getPosition().x < max.x && vitessePilote.z > 0.8)
     {
@@ -1296,28 +1397,31 @@ void vitesseAdv(Vehicule &pilote, Vehicule &adv)
         // cout << "ehehehehe : " << advPosition.z << endl;
         // pilote.setSpeed(vec3(0, 0, vitessePilote.z+0.1));
         adv.setSpeed(vec3(0, 0, vitessePilote.z + 1 / advPosition.z));
+
         // Bolide.setVMax(2);
         // Bolide.addSpeed(vec3(0, 0, (0.001)));
     }
-    // else if (advPosition.z > 10)
-    // else if (advPosition.z > 10 && vitessePilote.z > 1)
-    // {
-    //     cout << "AUGMENTATION DE LA VITESSE !" << endl;
-    //     cout << "ohohohohoehfzefzye : " << advPosition.z << endl;
-    //     adv.addSpeed(vec3(0, 0, 0.2));
-    // }
-    // else if (advPosition.z < -10 && advPosition.z > -30 && vitessePilote.z > 1.5 && pilote.transform.t.x > min.x && pilote.transform.t.x < max.x && vitessePilote.z > 1)
-    // {
-    //     cout << "ASPIRATIOOOOOOOOOOOOOOOOOOOOOOOOOON" << endl;
-    //     Bolide.addSpeed(vec3(0, 0, 0.01));
-    // }
-    // else
-    // {
-    //     adv.setSpeed(vec3(0, 0, vitessePilote.z));
-    // }
-    // if(advPosition.z < -50){
-    //     advPosition.z = -50 ;
-    // }
+
+    // adv.transform.Translate(vec3(0.1*pilote.transform.t.x, 0, 0));
+    //  else if (advPosition.z > 10)
+    //  else if (advPosition.z > 10 && vitessePilote.z > 1)
+    //  {
+    //      cout << "AUGMENTATION DE LA VITESSE !" << endl;
+    //      cout << "ohohohohoehfzefzye : " << advPosition.z << endl;
+    //      adv.addSpeed(vec3(0, 0, 0.2));
+    //  }
+    //  else if (advPosition.z < -10 && advPosition.z > -30 && vitessePilote.z > 1.5 && pilote.transform.t.x > min.x && pilote.transform.t.x < max.x && vitessePilote.z > 1)
+    //  {
+    //      cout << "ASPIRATIOOOOOOOOOOOOOOOOOOOOOOOOOON" << endl;
+    //      Bolide.addSpeed(vec3(0, 0, 0.01));
+    //  }
+    //  else
+    //  {
+    //      adv.setSpeed(vec3(0, 0, vitessePilote.z));
+    //  }
+    //  if(advPosition.z < -50){
+    //      advPosition.z = -50 ;
+    //  }
 }
 
 void v(Vehicule &voiture, float vitesseMax)

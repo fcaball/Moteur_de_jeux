@@ -608,6 +608,30 @@ common/shader.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/common/shader.cpp.s
 .PHONY : common/shader.cpp.s
 
+common/text2D.o: common/text2D.cpp.o
+.PHONY : common/text2D.o
+
+# target to build an object file
+common/text2D.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/common/text2D.cpp.o
+.PHONY : common/text2D.cpp.o
+
+common/text2D.i: common/text2D.cpp.i
+.PHONY : common/text2D.i
+
+# target to preprocess a source file
+common/text2D.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/common/text2D.cpp.i
+.PHONY : common/text2D.cpp.i
+
+common/text2D.s: common/text2D.cpp.s
+.PHONY : common/text2D.s
+
+# target to generate assembly for a file
+common/text2D.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/common/text2D.cpp.s
+.PHONY : common/text2D.cpp.s
+
 common/texture.o: common/texture.cpp.o
 .PHONY : common/texture.o
 
@@ -707,6 +731,9 @@ help:
 	@echo "... common/shader.o"
 	@echo "... common/shader.i"
 	@echo "... common/shader.s"
+	@echo "... common/text2D.o"
+	@echo "... common/text2D.i"
+	@echo "... common/text2D.s"
 	@echo "... common/texture.o"
 	@echo "... common/texture.i"
 	@echo "... common/texture.s"

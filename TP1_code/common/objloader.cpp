@@ -141,23 +141,10 @@ struct Mesh
 	};	
  
 
-struct Texture
-{
-    std::string image_name;
-    int textureID;
-};
 
 
 unsigned int num_meshes;
 std::vector<Mesh> mesh_list;
-std::vector<Texture> texture_list;
-int is_image_loaded(std::string file_name)
-{
-    for (unsigned int i = 0; i < texture_list.size(); ++i)
-        if (file_name.compare(texture_list[i].image_name) == 0)
-            return texture_list[i].textureID;
-    return -1;
-}
 
 void load_model(const char *path,
                 std::vector<unsigned short> &indices,
@@ -176,7 +163,6 @@ void load_model(const char *path,
     {
         num_meshes = scene->mNumMeshes;
         mesh_list.clear();
-        texture_list.clear();
         mesh_list.resize(num_meshes);
 
         aiMesh *mesh{};
@@ -191,33 +177,7 @@ void load_model(const char *path,
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex]; // http://assimp.sourceforge.net/lib_html/structai_material.html
 
             // This loop will only run once (i.e. there's only 1 texture per mesh)
-            for (unsigned int tex_count = 0; tex_count < material->GetTextureCount(aiTextureType_DIFFUSE); ++tex_count) // Also, only using: aiTextureType_DIFFUSE.
-            {
-                aiString string;
-                material->GetTexture(aiTextureType_DIFFUSE, tex_count, &string); // Acquire the name of the image file to be loaded.
-
-                // (2) Load mesh [i]'s texture if not already loaded
-                // ---------------------------------------------------------------
-                int already_loaded = is_image_loaded(string.C_Str()); // Returns -1 if texture Not already loaded, otherwise returns Existing texture handle.
-
-                if (already_loaded == -1) // Image not yet loaded so now attempt to load it.
-                {
-                    bool load_success = false;
-                    unsigned int texture_handle = load_texture_image(string.C_Str(), load_success);
-
-                    if (load_success) // Although do nothing if the image fails to load.
-                    {
-                        Texture texture;
-                        texture.image_name = string.C_Str();
-                        texture.textureID = texture_handle;
-
-                        texture_list.push_back(texture);
-                        mesh_list[i].tex_handle = texture_handle;
-                    }
-                }
-                else
-                    mesh_list[i].tex_handle = already_loaded; // Assign existing texture handle.
-            }
+           
             // (3) Loop through all mesh [i]'s vertices
             // ---------------------------------------------------
             for (unsigned int i2 = 0; i2 < mesh->mNumVertices; ++i2)

@@ -139,10 +139,24 @@ CMakeFiles/TP1.dir/common/objloader.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TP1.dir/common/objloader.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/common/objloader.cpp -o CMakeFiles/TP1.dir/common/objloader.cpp.s
 
+CMakeFiles/TP1.dir/common/text2D.cpp.o: CMakeFiles/TP1.dir/flags.make
+CMakeFiles/TP1.dir/common/text2D.cpp.o: ../common/text2D.cpp
+CMakeFiles/TP1.dir/common/text2D.cpp.o: CMakeFiles/TP1.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/TP1.dir/common/text2D.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TP1.dir/common/text2D.cpp.o -MF CMakeFiles/TP1.dir/common/text2D.cpp.o.d -o CMakeFiles/TP1.dir/common/text2D.cpp.o -c /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/common/text2D.cpp
+
+CMakeFiles/TP1.dir/common/text2D.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/TP1.dir/common/text2D.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/common/text2D.cpp > CMakeFiles/TP1.dir/common/text2D.cpp.i
+
+CMakeFiles/TP1.dir/common/text2D.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/TP1.dir/common/text2D.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/common/text2D.cpp -o CMakeFiles/TP1.dir/common/text2D.cpp.s
+
 CMakeFiles/TP1.dir/common/vboindexer.cpp.o: CMakeFiles/TP1.dir/flags.make
 CMakeFiles/TP1.dir/common/vboindexer.cpp.o: ../common/vboindexer.cpp
 CMakeFiles/TP1.dir/common/vboindexer.cpp.o: CMakeFiles/TP1.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/TP1.dir/common/vboindexer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/TP1.dir/common/vboindexer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/TP1.dir/common/vboindexer.cpp.o -MF CMakeFiles/TP1.dir/common/vboindexer.cpp.o.d -o CMakeFiles/TP1.dir/common/vboindexer.cpp.o -c /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/common/vboindexer.cpp
 
 CMakeFiles/TP1.dir/common/vboindexer.cpp.i: cmake_force
@@ -160,6 +174,7 @@ TP1_OBJECTS = \
 "CMakeFiles/TP1.dir/common/controls.cpp.o" \
 "CMakeFiles/TP1.dir/common/texture.cpp.o" \
 "CMakeFiles/TP1.dir/common/objloader.cpp.o" \
+"CMakeFiles/TP1.dir/common/text2D.cpp.o" \
 "CMakeFiles/TP1.dir/common/vboindexer.cpp.o"
 
 # External object files for target TP1
@@ -170,6 +185,7 @@ TP1: CMakeFiles/TP1.dir/common/shader.cpp.o
 TP1: CMakeFiles/TP1.dir/common/controls.cpp.o
 TP1: CMakeFiles/TP1.dir/common/texture.cpp.o
 TP1: CMakeFiles/TP1.dir/common/objloader.cpp.o
+TP1: CMakeFiles/TP1.dir/common/text2D.cpp.o
 TP1: CMakeFiles/TP1.dir/common/vboindexer.cpp.o
 TP1: CMakeFiles/TP1.dir/build.make
 TP1: /usr/lib/x86_64-linux-gnu/libGL.so
@@ -199,7 +215,7 @@ TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: /usr/lib/x86_64-linux-gnu/libGL.so
 TP1: /usr/lib/x86_64-linux-gnu/libGLU.so
 TP1: CMakeFiles/TP1.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable TP1"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable TP1"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/TP1.dir/link.txt --verbose=$(VERBOSE)
 	/usr/bin/cmake -E copy /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/build/./TP1 /home/alexandre/Documents/Moteur/Moteur_de_jeux/TP1_code/TP1/
 

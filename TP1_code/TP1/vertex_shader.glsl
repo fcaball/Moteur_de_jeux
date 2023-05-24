@@ -20,7 +20,7 @@ out vec4 boundsAndheight;
 // Values that stay constant for the whole mesh.
 
 void main(){
-
+   
         o_uv0=uv;
         //mode heightmap
         if(mode==1){

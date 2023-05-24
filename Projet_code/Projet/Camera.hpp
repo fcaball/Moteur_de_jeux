@@ -111,13 +111,7 @@ public:
         up = u;
     }
 
-    void draw(GLuint programID)
-    {
-        for (Object3D *child : children)
-        {
-            child->draw(programID);
-        }
-    }
+
 
     void updateMeAndChilds()
     {

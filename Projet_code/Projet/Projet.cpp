@@ -37,7 +37,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void turnPneu(Object3D &roueDirectionnelleDroite, Object3D &roueDirectionnelleGauche, bool reInit);
 void checkFreinAMain(Vehicule &Bolide, ObjectPlan &planInfini, ObjectPlan &lastChild);
 void InfiniPlan(ObjectPlan &planInfini);
-void UpdateObjects(ObjectPlan &plan);
 void crash(Object3D &CivilCar, Vehicule &voit);
 void desseleration(Vehicule &car);
 void vitesseAdv(Vehicule &pilote, Vehicule &adv);
@@ -642,29 +641,6 @@ void InfiniPlan(ObjectPlan &planInfini)
     }
 }
 
-void UpdateObjects(ObjectPlan &plan)
-{
-    for (Object3D *child : plan.getChilds())
-    {
-        Transform t;
-        child->transform = t;
-
-        float randFloatX = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-
-        // Generate a random float between a specified range
-        float minValX = -plan.getOffsetX();
-        float maxValX = plan.getOffsetX();
-        float randRangeX = (maxValX - minValX) * randFloatX + minValX;
-
-        float randFloatZ = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-
-        // Generate a random float between a specified range
-        float minValZ = -plan.getOffsetZ();
-        float maxValZ = plan.getOffsetZ();
-        float randRangeZ = (maxValZ - minValZ) * randFloatZ + minValZ;
-        child->transform.Translate(vec3(randRangeX, 0, randRangeZ));
-    }
-}
 
 void crash(Object3D &CivilCar, Vehicule &voit)
 {

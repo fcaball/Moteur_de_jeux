@@ -292,7 +292,7 @@ int main(void)
     planInfini.addChild(&plan11);
     planInfini.addChild(&plan12);
 
-    testSphereSky.loadObject("./sphere.off", 0);
+    testSphereSky.loadObject("../models/sphere.off", 0);
     testSphereSky.loadTexture("../textures/spheremap.jpg");
     testSphereSky.transform.Scale(vec3(160, 160, 160));
     testSphereSky.transform.Rotation(vec3(0, 1, 0), radians(-21.0));

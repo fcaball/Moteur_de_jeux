@@ -40,11 +40,9 @@ void InfiniPlan(ObjectPlan &planInfini);
 void UpdateObjects(ObjectPlan &plan);
 void crash(Object3D &CivilCar, Vehicule &voit);
 void desseleration(Vehicule &car);
-void RandomAcceleration(Vehicule &car);
 void vitesseAdv(Vehicule &pilote, Vehicule &adv);
-void createVoiture(Vehicule &voiture);
-void aspiration(Object3D &voitures, Vehicule &bol);
-void v(Vehicule &voiture, float v);
+void crashAdv(Object3D &voitures, Vehicule &bol);
+void acceleration(Vehicule &voiture, float v);
 void depassement(Object3D &voitures, Vehicule &bol);
 void createVoiture(Vehicule &voiture, int Joueur);
 
@@ -355,14 +353,14 @@ int main(void)
                     civilCar->getChilds()[2]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
                     civilCar->getChilds()[3]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
                     vitesseAdv(Bolide, *civilCar);
-                    v(*civilCar, 1.5);
+                    acceleration(*civilCar, 1.5);
                 }
                 else
                 {
                     civilCar->transform.Translate((-(Bolide.getSpeed() * Cam->getFront())));
                 }
             }
-            aspiration(CivilCars, Bolide);
+            crashAdv(CivilCars, Bolide);
             depassement(CivilCars, Bolide);
 
             Bolide.getChilds()[3]->transform.Rotation(vec3(1, 0, 0), Bolide.getSpeed().z);
@@ -428,7 +426,7 @@ void processInput(GLFWwindow *window)
         {
             if (!Bolide.getStop())
             {
-                v(Bolide, Bolide.getVMax());
+                acceleration(Bolide, Bolide.getVMax());
             }
         }
     }
@@ -741,18 +739,8 @@ void acceleration(Vehicule &car)
 {
 }
 
-void RandomAcceleration(Vehicule &car)
-{
 
-    int k = rand() % 5;
-    if (k == 1)
-    {
-        car.addSpeed(vec3(0, 0, (float)(car.getVMax() * (1 - exp(-car.getTMax() * 0.05 * (deltaTime * deltaTime))))));
-    }
-    std::cout << car.getSpeed().z << endl;
-}
-
-void aspiration(Object3D &CivilCar, Vehicule &voit)
+void crashAdv(Object3D &CivilCar, Vehicule &voit)
 {
     vector<Object3D *> childs = CivilCar.getChilds();
     Vehicule *voiture1, *voiture2;
@@ -859,7 +847,7 @@ void depassement(Object3D &CivilCar, Vehicule &voit)
                     vitesseRelative = vitesse1 - vitesse2;
                     if ((minvoit1.x + maxvoit1.x) / 2 > minvoit2.x && (minvoit1.x + maxvoit1.x) / 2 < maxvoit2.x && maxvoit1.z > minvoit2.z + 50 )
                     {
-                        std::cout << "ASPIRATION IAAAAA     !!! " << endl;
+                        std::cout << "crashAdv IAAAAA     !!! " << endl;
                         voiture1->addSpeed(vec3(0, 0, 0.001));
                     }
                     if ((minvoit2.x + maxvoit2.x) / 2 < 0 && minvoit1.x < maxvoit2.x + 1 && maxvoit1.z < minvoit2.z + 50 && minvoit1.z > maxvoit2.z)
@@ -943,7 +931,7 @@ void vitesseAdv(Vehicule &pilote, Vehicule &adv)
 
 }
 
-void v(Vehicule &voiture, float vitesseMax)
+void acceleration(Vehicule &voiture, float vitesseMax)
 {
     vec3 vitesse = voiture.getSpeed();
     if (vitesse.z < vitesseMax * 2 / 3)
